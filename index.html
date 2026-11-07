@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Donezo</title>
+  <style>
+    :root, :root[data-theme="white"] {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --ink: #1a1a1a;
+      --mut: #888888;
+      --line: #e5e5e5;
+      --acc: #2d8a5e;
+      --accl: #e0f2ea;
+      --acch: #237a4e;
+      --warn: #d9982e;
+      --warnl: #fdf0d5;
+      --shadow: 0 1px 3px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.03);
+      --shadow-lg: 0 2px 8px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --transition: .2s ease;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0f0f0e;
+      --card: #1a1a18;
+      --ink: #eeedea;
+      --mut: #8a887f;
+      --line: #2a2a27;
+      --acc: #4fb58a;
+      --accl: #1a3328;
+      --acch: #5fc99a;
+      --warn: #e7b04f;
+      --warnl: #332c1a;
+      --shadow: 0 1px 3px rgba(0,0,0,.2), 0 4px 12px rgba(0,0,0,.15);
+      --shadow-lg: 0 2px 8px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.2);
+    }
+
+    :root[data-theme="beige"] {
+      --bg: #f3ebe0;
+      --card: #faf6f0;
+      --ink: #3d3529;
+      --mut: #9a8e7e;
+      --line: #e2d8ca;
+      --acc: #8b6b3d;
+      --accl: #f0e6d6;
+      --acch: #7a5c30;
+      --warn: #c47a2e;
+      --warnl: #f5e4cf;
+      --shadow: 0 1px 3px rgba(60,45,20,.05), 0 4px 12px rgba(60,45,20,.04);
+      --shadow-lg: 0 2px 8px rgba(60,45,20,.07), 0 8px 24px rgba(60,45,20,.06);
+    }
+
+    * { box-sizing: border-box; margin: 0 }
+
+    html {
+      height: 100%;
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.5 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Sticky header ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .left { display: flex; flex-direction: column; gap: 1px; min-width: 0 }
+
+    h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2 }
+
+    .sub { color: var(--mut); font-size: 12px; letter-spacing: .01em }
+
+    header .actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end }
+
+    /* ── Main content area ── */
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .wrap.hide { display: none }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; gap: 10px }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--transition);
+    }
+
+    .card:hover { box-shadow: var(--shadow-lg) }
+
+    .card h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--mut);
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+
+    .full { grid-column: 1/-1 }
+
+    /* ── Stats row ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 500px) {
+      .stats { grid-template-columns: repeat(2, 1fr) }
+    }
+
+    .stat {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 12px 8px;
+      text-align: center;
+      transition: transform var(--transition);
+    }
+
+    .stat:hover { transform: translateY(-1px) }
+
+    .stat b { font-size: 22px; display: block; font-weight: 700; letter-spacing: -.02em }
+    .stat span { font-size: 11px; color: var(--mut); font-weight: 500 }
+
+    /* ── Progress bar ── */
+    .bar {
+      height: 8px;
+      background: var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0 4px;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--acc), var(--acch));
+      width: 0;
+      border-radius: 8px;
+      transition: width .4s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Rows (habits / todos) ── */
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 4px;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+      transition: background var(--transition);
+    }
+
+    .row:last-child { border: 0 }
+    .row:hover { background: color-mix(in srgb, var(--bg) 50%, transparent); border-radius: 8px }
+
+    .chk {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--line);
+      background: none;
+      cursor: pointer;
+      flex: none;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+      padding: 0;
+      transition: all var(--transition);
+      display: grid;
+      place-items: center;
+    }
+
+    .chk:hover { border-color: var(--acc) }
+
+    .chk.on {
+      background: var(--acc);
+      border-color: var(--acc);
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--acc) 30%, transparent);
+    }
+
+    .row .t {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .row.done .t { text-decoration: line-through; color: var(--mut) }
+    .row.off { opacity: .4 }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--warn);
+      background: var(--warnl);
+      border-radius: 20px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .x {
+      background: none;
+      border: 0;
+      color: var(--mut);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all var(--transition);
+      opacity: 0;
+    }
+
+    .row:hover .x { opacity: 1 }
+    .x:hover { background: var(--line); color: var(--ink) }
+
+    @media (hover: none) { .x { opacity: 1 } }
+
+    /* ── Add row ── */
+    .add {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    input[type=text],
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+
+    input[type=text]:focus,
+    textarea:focus {
+      border-color: var(--acc);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 15%, transparent);
+    }
+
+    textarea { resize: vertical; min-height: 80px }
+
+    /* ── Buttons ── */
+    button.b {
+      background: var(--acc);
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    button.b:hover { background: var(--acch); transform: translateY(-1px); box-shadow: 0 4px 12px color-mix(in srgb, var(--acc) 25%, transparent) }
+    button.b:active { transform: translateY(0) }
+
+    button.g {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    button.g:hover { background: var(--bg); border-color: var(--mut) }
+
+    /* ── Calendar ── */
+    .cal {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal .h {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--mut);
+      text-align: center;
+      padding-bottom: 4px;
+    }
+
+    .d {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: none;
+      color: var(--ink);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      position: relative;
+      padding: 0;
+      transition: all var(--transition);
+    }
+
+    .d:hover { border-color: var(--mut) }
+
+    .d.full {
+      background: var(--acc);
+      color: #fff;
+      border-color: var(--acc);
+      grid-column: auto;
+      font-weight: 600;
+    }
+
+    .d.part { background: var(--accl) }
+
+    .d.sel {
+      outline: 2px solid var(--acc);
+      outline-offset: 1px;
+    }
+
+    .d.today { font-weight: 700; border-color: var(--ink); border-width: 2px }
+    .d.fut { opacity: .35 }
+
+    .mh {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .mh b { font-size: 14px }
+
+    /* ── Weekly chart ── */
+    .week {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+      height: 100px;
+    }
+
+    .wc {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--mut);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      height: 100%;
+    }
+
+    .wc i {
+      display: block;
+      background: linear-gradient(180deg, var(--acc), var(--acch));
+      border-radius: 4px 4px 0 0;
+      min-height: 3px;
+      transition: height .3s ease;
+    }
+
+    /* ── Water ── */
+    .water { display: flex; gap: 6px; flex-wrap: wrap }
+
+    .glass {
+      width: 28px;
+      height: 36px;
+      border: 2px solid var(--line);
+      border-radius: 3px 3px 8px 8px;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      transition: all var(--transition);
+    }
+
+    .glass:hover { border-color: #6aaee0; transform: translateY(-2px) }
+
+    .glass.on {
+      background: linear-gradient(180deg, #7bb8e4, #5a9dd8);
+      border-color: #5a9dd8;
+      box-shadow: 0 2px 8px rgba(106,174,224,.25);
+    }
+
+    :root[data-theme="beige"] .glass.on {
+      background: linear-gradient(180deg, #8bb8d4, #6aa0c0);
+      border-color: #6aa0c0;
+    }
+
+    .empty { color: var(--mut); font-size: 13px; padding: 8px 4px }
+
+    /* ── Day chips ── */
+    .chips { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: none;
+      color: var(--mut);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .chip:hover { border-color: var(--acc); color: var(--ink) }
+
+    .chip.on {
+      background: var(--accl);
+      color: var(--ink);
+      border-color: var(--acc);
+      font-weight: 600;
+    }
+
+    /* ── Login ── */
+    #login {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: auto;
+    }
+
+    .lbox {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .lbox h1 { font-size: 24px; text-align: center }
+    .lbox .sub { text-align: center; margin-bottom: 4px }
+
+    .lbox input,
+    .lbox select { flex: none }
+
+    input[type=password],
+    select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input[type=password]:focus,
+    select:focus {
+      border-color: var(--acc);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 15%, transparent);
+    }
+
+    .tabs { display: flex; gap: 6px }
+    .tabs .g { flex: 1; font-weight: 600; text-align: center }
+    .tabs .g.on { background: var(--accl); border-color: var(--acc); color: var(--acc) }
+
+    .err { color: #d2483c; font-size: 12px; min-height: 16px }
+
+    input[type=email] {
+      width: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input[type=email]:focus {
+      border-color: var(--acc);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 15%, transparent);
+    }
+
+    .lbox a { color: var(--acc); text-decoration: none; font-weight: 500 }
+    .lbox a:hover { text-decoration: underline }
+
+    /* ── Admin ── */
+    #admin {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 60;
+      overflow: auto;
+      padding: 16px;
+      display: none;
+      justify-content: center;
+    }
+
+    .abox { width: 100%; max-width: 900px }
+
+    #adminBody table { width: 100%; border-collapse: collapse; font-size: 13px }
+    #adminBody td, #adminBody th { text-align: left; padding: 8px; border-bottom: 1px solid var(--line) }
+    #adminBody th { font-weight: 600; color: var(--mut); font-size: 11px; text-transform: uppercase; letter-spacing: .05em }
+    #adminBody h2 { font-size: 13px; color: var(--mut); margin: 0 }
+
+    /* ── Heatmap ── */
+    .heat {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(7, 12px);
+      grid-auto-columns: 12px;
+      gap: 3px;
+      width: max-content;
+    }
+
+    .hc {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: var(--line);
+      transition: background var(--transition);
+    }
+
+    /* ── Greeting card ── */
+    .greeting-card {
+      background: linear-gradient(135deg, var(--accl), color-mix(in srgb, var(--accl) 40%, var(--card)));
+      border-color: color-mix(in srgb, var(--acc) 20%, var(--line));
+    }
+
+    :root[data-theme="dark"] .greeting-card {
+      background: linear-gradient(135deg, var(--accl), var(--card));
+    }
+
+    .greeting-card .quote { font-style: italic; font-size: 13px; line-height: 1.5; color: var(--mut) }
+
+    /* ── Sync label ── */
+    #syncLabel {
+      font-size: 11px;
+      text-align: center;
+      padding: 12px;
+      color: var(--mut);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px }
+    ::-webkit-scrollbar-track { background: transparent }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px }
+    ::-webkit-scrollbar-thumb:hover { background: var(--mut) }
+
+    /* ── Mobile refinements ── */
+    @media (max-width: 500px) {
+      h1 { font-size: 18px }
+      header { padding: 10px 12px; padding-top: calc(10px + env(safe-area-inset-top, 0px)) }
+      header .actions { gap: 4px }
+      button.g { padding: 6px 9px; font-size: 12px }
+      .wrap { padding: 12px 10px calc(20px + env(safe-area-inset-bottom, 0px)) }
+      .card { padding: 14px; border-radius: 14px }
+      .stat b { font-size: 20px }
+      .lbox { padding: 22px 18px; border-radius: 16px }
+    }
+
+    /* ── Selection ── */
+    ::selection { background: color-mix(in srgb, var(--acc) 25%, transparent) }
+  </style>
+</head>
+
+<body>
+  <div id="login" style="display:flex">
+    <div class="lbox">
+      <h1>Donezo</h1>
+      <div class="sub">Build habits. Keep your streaks.</div>
+      <div class="tabs"><button class="g on" id="tabIn">Sign in</button><button class="g" id="tabUp">Create
+          account</button></div>
+      <input type="email" id="lgEmail" placeholder="Email" autocomplete="email"><input type="text" id="lgName"
+        placeholder="Your name" maxlength="30" style="display:none">
+      <select id="lgTitle" style="display:none">
+        <option value="">Title (optional)</option>
+        <option>Mr.</option>
+        <option>Ms.</option>
+        <option>Mrs.</option>
+        <option>Mx.</option>
+        <option>Dr.</option>
+      </select>
+      <input type="password" id="lgPin" placeholder="Password (6+ characters)" autocomplete="current-password">
+      <div class="err" id="lgErr"></div>
+      <button class="b" id="lgGo">Continue</button>
+      <div class="sub"><a href="#" id="forgot">Forgot password?</a></div>
+    </div>
+  </div>
+  <div id="admin" style="display:none">
+    <div class="abox">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h1>Admin dashboard</h1><button class="g" id="adminClose">Close</button>
+      </div>
+      <div id="adminBody" class="sub">Loading…</div>
+    </div>
+  </div>
+  <header id="appHeader" style="display:none">
+    <div class="left">
+      <h1>Donezo</h1>
+      <div class="sub" id="dateLabel"></div>
+    </div>
+    <div class="actions"><button class="g" id="todayBtn">Today</button><button class="g" id="themeBtn">☀︎</button><button
+        class="g" id="exportBtn">Export</button><button class="g" id="adminBtn" style="display:none">Admin</button><button
+        class="g" id="logoutBtn">Log out</button></div>
+  </header>
+  <div class="wrap hide" id="app">
+    <div class="grid">
+      <div class="card full greeting-card">
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.02em" id="heyLine"></div>
+        <div class="quote" style="margin-top:8px"><span id="quoteText"></span> <span class="sub" id="quoteBy"></span></div>
+      </div>
+      <div class="card full">
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <div class="card">
+        <h2>Daily activities</h2>
+        <div class="sub" id="progText"></div>
+        <div class="bar"><i id="progBar"></i></div>
+        <div id="habits"></div>
+        <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button
+            class="b" id="habitAdd">Add</button></div>
+        <div class="chips" id="dayChips"></div>
+        <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week
+            keeps your streak. Tap an activity name to change its days.</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Calendar</h2>
+        <div class="mh"><button class="g" id="prev">‹</button><b id="monthLabel"></b><button class="g"
+            id="next">›</button></div>
+        <div class="cal" id="cal"></div>
+        <div class="sub" style="margin-top:8px">Filled = all done · tinted = partial</div>
+      </div>
+
+      <div class="card">
+        <h2>One-off to-dos (this day)</h2>
+        <div id="todos"></div>
+        <div class="add"><input type="text" id="todoIn" placeholder="Add a to-do…" maxlength="120"><button class="b"
+            id="todoAdd">Add</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Last 7 days</h2>
+        <div class="week" id="week"></div>
+      </div>
+
+      <div class="card">
+        <h2>Water (glasses)</h2>
+        <div class="water" id="water"></div>
+      </div>
+
+      <div class="card">
+        <h2>Daily note / journal</h2>
+        <textarea id="note" placeholder="How did the day go?"></textarea>
+      </div>
+
+      <div class="card full">
+        <h2>Past year</h2>
+        <div style="overflow-x:auto">
+          <div class="heat" id="heat"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sub" id="syncLabel" style="margin-top:14px;text-align:center"></div>
+  </div>
+
+  <script>window.APP_CONFIG = { SUPABASE_URL: "https://vhgmrbiinyjknxwbapnb.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4" };</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script>
+    (function () {
+      let LS = 'daily-tracker-v1';
+      const $ = id => document.getElementById(id);
+      const pad = n => String(n).padStart(2, '0');
+      const key = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+      const parse = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d) };
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const todayKey = () => key(new Date());
+
+      let S = { habits: [], log: {}, todos: [], notes: {}, water: {}, theme: '', freeze: {} };
+      let sel = todayKey(), view = parse(sel); view.setDate(1);
+      let cloudRef = null, saveTimer = null;
+
+      function loadLocal() {
+        try { const r = localStorage.getItem(LS); if (r) return JSON.parse(r) } catch (e) { }
+        return null;
+      }
+      function norm(o) {
+        const d = { habits: [], log: {}, todos: [], notes: {}, water: {}, theme: '', freeze: {} };
+        return Object.assign(d, o || {});
+      }
+      function save() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(async () => {
+          const json = JSON.stringify(S);
+          try { localStorage.setItem(LS, json) } catch (e) { }
+          if (cloudRef) {
+            try { await cloudRef.set({ json, updated: Date.now() }); $('syncLabel').textContent = 'Saved to your private cloud storage' }
+            catch (e) { $('syncLabel').textContent = 'Cloud save failed — saved in this browser only' }
+          }
+        }, 400);
+      }
+
+      const DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let newDays = new Set([0, 1, 2, 3, 4, 5, 6]);
+      const due = (h, k) => !h.days || h.days.includes(parse(k).getDay());
+      const dueList = k => S.habits.filter(h => due(h, k));
+      const ndue = k => dueList(k).length;
+      const done = k => { const ids = S.log[k] || []; return dueList(k).filter(h => ids.includes(h.id)).length };
+      const frac = k => ndue(k) ? done(k) / ndue(k) : 0;
+      const isFull = k => ndue(k) > 0 && done(k) === ndue(k);
+      const status = k => { if (isFull(k)) return 'full'; if (S.freeze[k] || !ndue(k)) return 'skip'; return 'miss' };
+      const wk0 = k => { const d = parse(k); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return key(d) };
+      const weekFreeze = k => Object.keys(S.freeze).some(x => x !== k && wk0(x) === wk0(k));
+      function editDays(h) {
+        const cur = h.days ? h.days.map(i => DN[i]).join(',') : 'all';
+        const v = prompt('Days for "' + h.name + '" (e.g. mon,wed,fri — or "all")', cur);
+        if (v === null) return;
+        const t = v.toLowerCase().split(/[\s,]+/).filter(Boolean);
+        const days = DN.map((n, i) => t.some(x => x.length >= 2 && n.toLowerCase().startsWith(x.slice(0, 3))) ? i : -1).filter(i => i >= 0);
+        h.days = (t[0] === 'all' || !days.length || days.length === 7) ? undefined : days;
+        save(); render();
+      }
+
+      function streakOverall() {
+        const ks = Object.keys(S.log).concat(Object.keys(S.freeze)).sort();
+        if (!ks.length) return { cur: 0, best: 0 };
+        const tk = todayKey(); let d = parse(ks[0]), cur = 0, best = 0;
+        while (key(d) <= tk) {
+          const k = key(d), s = status(k);
+          if (s === 'full') { cur++; best = Math.max(best, cur) }
+          else if (s === 'miss' && k !== tk) cur = 0;
+          d.setDate(d.getDate() + 1);
+        }
+        return { cur, best };
+      }
+      function habitStreak(id) {
+        const h = S.habits.find(x => x.id === id); let d = new Date(), n = 0, g = 0;
+        while (g++ < 3700) {
+          const k = key(d), has = (S.log[k] || []).includes(id);
+          if (has) n++;
+          else if (due(h, k) && !S.freeze[k] && k !== todayKey()) break;
+          d.setDate(d.getDate() - 1);
+        }
+        return n;
+      }
+
+      function render() {
+        applyTheme();
+        const sd = parse(sel);
+        $('dateLabel').textContent = sd.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (sel === todayKey() ? ' · Today' : '');
+
+        // stats
+        const st = streakOverall();
+        let total = 0, perfect = 0; Object.keys(S.log).forEach(k => { if (isFull(k)) perfect++ });
+        const last30 = [...Array(30)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return frac(key(d)) });
+        const avg = Math.round(last30.reduce((a, b) => a + b, 0) / 30 * 100);
+        $('stats').innerHTML =
+          `<div class="stat"><b>🔥 ${st.cur}</b><span>Current streak</span></div>` +
+          `<div class="stat"><b>🏆 ${st.best}</b><span>Best streak</span></div>` +
+          `<div class="stat"><b>${perfect}</b><span>Perfect days</span></div>` +
+          `<div class="stat"><b>${avg}%</b><span>30-day average</span></div>`;
+
+        // habits
+        const ids = S.log[sel] || [];
+        const dn = done(sel), tot = ndue(sel);
+        $('progText').textContent = tot ? `${dn} of ${tot} done · ${Math.round(dn / tot * 100)}%` : 'No activities yet — add your first one below.';
+        $('progBar').style.width = (tot ? dn / tot * 100 : 0) + '%';
+        const hb = $('habits'); hb.innerHTML = '';
+        S.habits.forEach(h => {
+          const on = ids.includes(h.id), s = habitStreak(h.id), off = !due(h, sel);
+          const r = document.createElement('div'); r.className = 'row' + (on ? ' done' : '') + (off ? ' off' : '');
+          r.innerHTML = `<button class="chk ${on ? 'on' : ''}" aria-label="toggle">${on ? '✓' : ''}</button><span class="t"></span>${s > 1 ? `<span class="badge">🔥 ${s}</span>` : ''}<button class="x" aria-label="delete">✕</button>`;
+          r.querySelector('.t').textContent = h.name + (h.days ? ' · ' + h.days.map(i => DN[i]).join(' ') : '') + (off ? ' (off day)' : '');
+          r.querySelector('.t').onclick = () => editDays(h);
+          if (off) r.querySelector('.chk').disabled = true;
+          r.querySelector('.chk').onclick = () => {
+            const a = S.log[sel] || []; S.log[sel] = on ? a.filter(x => x !== h.id) : [...a, h.id]; save(); render();
+          };
+          r.querySelector('.x').onclick = () => {
+            if (confirm('Remove "' + h.name + '"? Past ticks for it will no longer count.')) { S.habits = S.habits.filter(x => x.id !== h.id); save(); render() }
+          };
+          hb.appendChild(r);
+        });
+
+        // todos
+        const tb = $('todos'); tb.innerHTML = '';
+        const todos = S.todos.filter(t => t.date === sel);
+        if (!todos.length) { tb.innerHTML = '<div class="empty">Nothing here for this day.</div>' }
+        todos.forEach(t => {
+          const r = document.createElement('div'); r.className = 'row' + (t.done ? ' done' : '');
+          r.innerHTML = `<button class="chk ${t.done ? 'on' : ''}">${t.done ? '✓' : ''}</button><span class="t"></span><button class="x">✕</button>`;
+          r.querySelector('.t').textContent = t.text;
+          r.querySelector('.chk').onclick = () => { t.done = !t.done; save(); render() };
+          r.querySelector('.x').onclick = () => { S.todos = S.todos.filter(x => x.id !== t.id); save(); render() };
+          tb.appendChild(r);
+        });
+
+        // calendar
+        $('monthLabel').textContent = view.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+        const cal = $('cal'); cal.innerHTML = '';
+        ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(x => { const e = document.createElement('div'); e.className = 'h'; e.textContent = x; cal.appendChild(e) });
+        const first = new Date(view.getFullYear(), view.getMonth(), 1);
+        const lead = (first.getDay() + 6) % 7;
+        for (let i = 0; i < lead; i++)cal.appendChild(document.createElement('div'));
+        const dim = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+        const tk = todayKey();
+        for (let i = 1; i <= dim; i++) {
+          const k = key(new Date(view.getFullYear(), view.getMonth(), i));
+          const b = document.createElement('button');
+          let c = 'd'; if (isFull(k)) c += ' full'; else if (done(k) > 0) c += ' part';
+          if (k === sel) c += ' sel'; if (k === tk) c += ' today'; if (k > tk) c += ' fut';
+          b.className = c; b.textContent = isFull(k) ? '✓' : (S.freeze[k] ? '❄' : i); b.title = k;
+          b.onclick = () => { sel = k; render() };
+          cal.appendChild(b);
+        }
+
+        // week
+        const wk = $('week'); wk.innerHTML = '';
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(); d.setDate(d.getDate() - i); const k = key(d);
+          const c = document.createElement('div'); c.className = 'wc';
+          c.innerHTML = `<i style="height:${Math.max(3, frac(k) * 80)}px"></i><div>${d.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 2)}</div>`;
+          wk.appendChild(c);
+        }
+
+        // water
+        const w = S.water[sel] || 0, wb = $('water'); wb.innerHTML = '';
+        for (let i = 1; i <= 8; i++) {
+          const g = document.createElement('button'); g.className = 'glass' + (i <= w ? ' on' : ''); g.setAttribute('aria-label', 'glass ' + i);
+          g.onclick = () => { S.water[sel] = (w === i ? i - 1 : i); save(); render() };
+          wb.appendChild(g);
+        }
+
+        // weekday chips for new activity
+        const ch = $('dayChips'); ch.innerHTML = '<span class="sub" style="align-self:center">Repeat on:</span>';
+        [1, 2, 3, 4, 5, 6, 0].forEach(i => { const c = document.createElement('button'); c.className = 'chip' + (newDays.has(i) ? ' on' : ''); c.textContent = DN[i].slice(0, 2); c.onclick = () => { newDays.has(i) ? newDays.delete(i) : newDays.add(i); render() }; ch.appendChild(c) });
+
+        // rest day
+        const fb = $('freezeBtn'); fb.textContent = S.freeze[sel] ? 'Remove rest day' : '❄ Use rest day';
+        fb.onclick = () => {
+          if (S.freeze[sel]) delete S.freeze[sel];
+          else { if (weekFreeze(sel)) { alert('You already used a rest day this week.'); return } S.freeze[sel] = true }
+          save(); render();
+        };
+
+        // yearly heatmap
+        const hm = $('heat'); hm.innerHTML = '';
+        const hs = new Date(); hs.setDate(hs.getDate() - 364); hs.setDate(hs.getDate() - ((hs.getDay() + 6) % 7));
+        for (const d = new Date(hs); key(d) <= todayKey(); d.setDate(d.getDate() + 1)) {
+          const k = key(d), f = frac(k), c = document.createElement('div'); c.className = 'hc';
+          if (S.freeze[k] && !isFull(k)) c.style.background = 'var(--warn)';
+          else if (f > 0) c.style.background = 'color-mix(in srgb,var(--acc) ' + Math.max(25, Math.round(f * 100)) + '%,var(--line))';
+          c.title = k + ' · ' + Math.round(f * 100) + '%';
+          hm.appendChild(c);
+        }
+
+        // note
+        const n = $('note'); if (document.activeElement !== n) n.value = S.notes[sel] || '';
+      }
+
+      function addHabit() { const v = $('habitIn').value.trim(); if (!v) return; S.habits.push({ id: uid(), name: v, days: (newDays.size && newDays.size < 7) ? [...newDays] : undefined }); newDays = new Set([0, 1, 2, 3, 4, 5, 6]); $('habitIn').value = ''; save(); render() }
+      function addTodo() { const v = $('todoIn').value.trim(); if (!v) return; S.todos.push({ id: uid(), text: v, date: sel, done: false }); $('todoIn').value = ''; save(); render() }
+      $('habitAdd').onclick = addHabit; $('todoAdd').onclick = addTodo;
+      $('habitIn').onkeydown = e => { if (e.key === 'Enter') addHabit() };
+      $('todoIn').onkeydown = e => { if (e.key === 'Enter') addTodo() };
+      $('note').oninput = e => { S.notes[sel] = e.target.value; save() };
+      $('prev').onclick = () => { view.setMonth(view.getMonth() - 1); render() };
+      $('next').onclick = () => { view.setMonth(view.getMonth() + 1); render() };
+      $('todayBtn').onclick = () => { sel = todayKey(); view = parse(sel); view.setDate(1); render() };
+      const THEMES = ['white', 'dark', 'beige'];
+      const THEME_ICONS = { white: '☀︎ Light', dark: '🌙 Dark', beige: '🏖 Beige' };
+      function applyTheme() {
+        const t = S.theme || 'white';
+        document.documentElement.setAttribute('data-theme', t);
+        $('themeBtn').textContent = THEME_ICONS[t] || THEME_ICONS.white;
+      }
+      $('themeBtn').onclick = () => {
+        const cur = S.theme || 'white';
+        const idx = THEMES.indexOf(cur);
+        S.theme = THEMES[(idx + 1) % THEMES.length];
+        save(); applyTheme(); render();
+      };
+      $('exportBtn').onclick = async () => {
+        const data = JSON.stringify(S, null, 2);
+        try { const dl = await claude.use('downloads'); if (dl) { await dl.save({ filename: 'daily-tracker-backup.json', data }); return } } catch (e) { }
+        try { await navigator.clipboard.writeText(data); alert('Backup copied to clipboard') } catch (e) { prompt('Copy your backup:', data) }
+      };
+
+      // start with local data, then upgrade to private cloud storage if available
+      // ---- Supabase auth + sync ----
+      const CFG = window.APP_CONFIG;
+      const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+      let UID = null;
+      const QUOTES = [
+        ['The unexamined life is not worth living.', 'Socrates'],
+        ['It does not matter how slowly you go as long as you do not stop.', 'Confucius'],
+        ['The journey of a thousand miles begins with a single step.', 'Lao Tzu'],
+        ['We are what we repeatedly do. Excellence, then, is not an act but a habit.', 'Will Durant'],
+        ['The only way to do great work is to love what you do.', 'Steve Jobs'],
+        ['Whether you think you can, or you think you can\u2019t, you\u2019re right.', 'Henry Ford'],
+        ['Do what you can, with what you have, where you are.', 'Theodore Roosevelt'],
+        ['The best time to plant a tree was 20 years ago. The second best time is now.', 'Proverb'],
+        ['He who has a why to live can bear almost any how.', 'Friedrich Nietzsche'],
+        ['Waste no more time arguing what a good man should be. Be one.', 'Marcus Aurelius'],
+        ['Courage is not the absence of fear, but the triumph over it.', 'Nelson Mandela'],
+        ['It always seems impossible until it\u2019s done.', 'Nelson Mandela'],
+        ['Success is the sum of small efforts, repeated day in and day out.', 'Robert Collier'],
+        ['Fall seven times, stand up eight.', 'Japanese proverb'],
+        ['Small deeds done are better than great deeds planned.', 'Peter Marshall'],
+        ['Energy and persistence conquer all things.', 'Benjamin Franklin'],
+        ['Lost time is never found again.', 'Benjamin Franklin'],
+        ['Well done is better than well said.', 'Benjamin Franklin'],
+        ['Nothing will work unless you do.', 'Maya Angelou'],
+        ['Act as if what you do makes a difference. It does.', 'William James'],
+        ['Don\u2019t count the days, make the days count.', 'Muhammad Ali'],
+        ['Discipline is the bridge between goals and accomplishment.', 'Jim Rohn'],
+        ['Tough times never last, but tough people do.', 'Robert H. Schuller'],
+        ['Little by little, one travels far.', 'J.R.R. Tolkien'],
+        ['Start where you are. Use what you have. Do what you can.', 'Arthur Ashe'],
+        ['Make each day your masterpiece.', 'John Wooden'],
+        ['The secret of getting ahead is getting started.', 'Mark Twain'],
+        ['Do something today that your future self will thank you for.', 'Sean Patrick Flanery'],
+        ['A river cuts through rock not because of its power, but because of its persistence.', 'Jim Watkins'],
+        ['Your time is limited, so don\u2019t waste it living someone else\u2019s life.', 'Steve Jobs'],
+        ['Happiness depends upon ourselves.', 'Aristotle'],
+        ['In the middle of difficulty lies opportunity.', 'Albert Einstein'],
+        ['The future depends on what you do today.', 'Mahatma Gandhi'],
+        ['You miss 100% of the shots you don\u2019t take.', 'Wayne Gretzky'],
+        ['Action is the foundational key to all success.', 'Pablo Picasso']
+      ];
+      const dayIndex = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+      const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      let mode = 'in';
+      function setMode(m) {
+        mode = m; $('tabIn').classList.toggle('on', m === 'in'); $('tabUp').classList.toggle('on', m === 'up');
+        $('lgName').style.display = $('lgTitle').style.display = m === 'up' ? 'block' : 'none'; $('lgErr').textContent = '';
+      }
+      async function getQuote() {
+        const ck = 'dt-quote-' + todayKey();
+        try { const c = localStorage.getItem(ck); if (c) return JSON.parse(c) } catch (e) { }
+        try {
+          const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
+          const r = await fetch('https://dummyjson.com/quotes/random', { signal: ctl.signal });
+          const j = await r.json(); const q = [j.quote, j.author];
+          if (!j.quote) throw 0;
+          try { localStorage.setItem(ck, JSON.stringify(q)) } catch (e) { }
+          return q;
+        } catch (e) { return QUOTES[dayIndex() % QUOTES.length] }
+      }
+      async function submit() {
+        const err = m => { $('lgErr').textContent = m };
+        const email = $('lgEmail').value.trim(), pw = $('lgPin').value, name = $('lgName').value.trim();
+        if (!email) return err('Enter your email.');
+        if (pw.length < 6) return err('Password must be at least 6 characters.');
+        $('lgGo').disabled = true;
+        try {
+          if (mode === 'up') {
+            if (!name) return err('Enter your name.');
+            const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { name, title: $('lgTitle').value } } });
+            if (error) return err(error.message);
+            if (!data.session) return err('Check your email to confirm your account, then sign in.');
+          } else {
+            const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+            if (error) return err(error.message);
+          }
+        } finally { $('lgGo').disabled = false }
+      }
+      async function enter(user) {
+        UID = user.id; LS = 'daily-tracker-v1:' + UID; $('lgErr').textContent = '';
+        const [pr, st, adm] = await Promise.all([
+          sb.from('profiles').select('name,title').eq('id', UID).maybeSingle(),
+          sb.from('tracker_state').select('data').eq('user_id', UID).maybeSingle(),
+          sb.rpc('is_admin')]);
+        const um = user.user_metadata || {};
+        const p = pr.data || { name: um.name || 'friend', title: um.title || '' };
+        const d = st.data && st.data.data; const has = d && Object.keys(d).length;
+        const local = loadLocal();
+        S = norm(has ? d : local);
+        if (!has && !local) { S.habits = [{ id: uid(), name: 'Exercise' }, { id: uid(), name: 'Read 20 minutes' }, { id: uid(), name: 'Plan tomorrow' }] }
+        cloudRef = { set: async o => { const { error } = await sb.from('tracker_state').upsert({ user_id: UID, data: JSON.parse(o.json), updated_at: new Date().toISOString() }); if (error) throw error } };
+        sel = todayKey(); view = parse(sel); view.setDate(1);
+        $('login').style.display = 'none'; $('app').classList.remove('hide'); $('appHeader').style.display = 'flex';
+        $('adminBtn').style.display = adm.data === true ? 'inline-block' : 'none';
+        $('heyLine').textContent = 'Hey ' + (p.title ? p.title + ' ' : '') + p.name;
+        render(); $('syncLabel').textContent = 'Synced to your account';
+        if (!has) save();
+        getQuote().then(q => { $('quoteText').textContent = '\u201c' + q[0] + '\u201d'; $('quoteBy').textContent = '\u2014 ' + q[1] });
+        sb.from('visits').upsert({ user_id: UID, day: todayKey() }, { onConflict: 'user_id,day', ignoreDuplicates: true }).then(() => { });
+        sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', UID).then(() => { });
+      }
+      function showLogin() {
+        UID = null; cloudRef = null; $('app').classList.add('hide'); $('appHeader').style.display = 'none'; $('admin').style.display = 'none';
+        $('login').style.display = 'flex'; $('lgPin').value = '';
+      }
+      async function openAdmin() {
+        $('admin').style.display = 'flex'; const body = $('adminBody'); body.textContent = 'Loading\u2026';
+        const { data, error } = await sb.rpc('admin_stats');
+        if (error) { body.textContent = 'Not authorized or setup incomplete: ' + error.message; return }
+        const mx = Math.max(1, ...data.daily.map(x => Math.max(x.active, x.signups)));
+        const stat = (n, l) => '<div class="stat"><b>' + n + '</b><span>' + l + '</span></div>';
+        const fd = v => v ? new Date(v).toLocaleDateString() : '-';
+        body.innerHTML = '<div class="stats">' + stat(data.total_users, 'Total users') + stat(data.dau_today, 'Active today') + stat(data.active_7d, 'Active (7 days)') + stat(data.new_7d, 'New (7 days)') + '</div>' +
+          '<h2 style="margin:16px 0 8px">Active users per day (last 14 days)</h2><div class="week">' +
+          data.daily.map(x => '<div class="wc"><div>' + x.active + '</div><i style="height:' + Math.max(3, x.active / mx * 70) + 'px"></i><div>' + esc(x.day.slice(8)) + '</div></div>').join('') + '</div>' +
+          '<h2 style="margin:16px 0 8px">Users</h2><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Joined</th><th>Last seen</th><th>Days active</th></tr>' +
+          data.users.map(u => '<tr><td>' + esc(u.name) + '</td><td>' + esc(u.email) + '</td><td>' + fd(u.created_at) + '</td><td>' + fd(u.last_seen) + '</td><td>' + u.days_active + '</td></tr>').join('') + '</table></div>';
+      }
+      $('tabIn').onclick = () => setMode('in'); $('tabUp').onclick = () => setMode('up');
+      $('lgGo').onclick = submit;
+      $('lgPin').onkeydown = e => { if (e.key === 'Enter') submit() };
+      $('logoutBtn').onclick = () => sb.auth.signOut();
+      $('adminBtn').onclick = openAdmin;
+      $('adminClose').onclick = () => { $('admin').style.display = 'none' };
+      $('forgot').onclick = async e => {
+        e.preventDefault(); const em = $('lgEmail').value.trim();
+        if (!em) { $('lgErr').textContent = 'Enter your email first.'; return }
+        const { error } = await sb.auth.resetPasswordForEmail(em, { redirectTo: location.href.split('#')[0] });
+        $('lgErr').textContent = error ? error.message : 'Password reset email sent.';
+      };
+      sb.auth.onAuthStateChange((ev, session) => {
+        setTimeout(() => {
+          if (ev === 'PASSWORD_RECOVERY') { const np = prompt('Enter a new password (6+ characters)'); if (np && np.length >= 6) sb.auth.updateUser({ password: np }).then(r => alert(r.error ? r.error.message : 'Password updated')) }
+          if (session && session.user) { if (UID !== session.user.id) enter(session.user) } else if (UID || ev === 'SIGNED_OUT') showLogin();
+        }, 0);
+      });
+      setMode('in');
+      if (CFG.SUPABASE_URL.indexOf('YOUR-PROJECT') >= 0) $('lgErr').textContent = 'Setup needed: add your Supabase keys at the top of index.html';
+
+      (async function () {
+        try {
+          return; // cloud sync off: public accounts are stored per device
+          const [user, db] = await Promise.all([claude.use('user'), claude.use('db')]);
+          if (!user || !db) return;
+          const id = await user.id(); if (!id) return;
+          const ref = db.doc('data/users/' + id + '/state');
+          const snap = await ref.get();
+          if (snap.exists) {
+            const d = snap.data();
+            if (d && d.json) { S = norm(JSON.parse(d.json)); try { localStorage.setItem(LS, d.json) } catch (e) { } }
+          }
+          cloudRef = ref;
+          $('syncLabel').textContent = 'Synced to your private cloud storage';
+          if (!snap.exists) save();
+          render();
+        } catch (e) { }
+      })();
+    })();
+  </script>
+</body>
+
+</html>
