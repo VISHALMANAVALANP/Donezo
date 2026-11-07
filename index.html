@@ -658,7 +658,7 @@
       <h1>Doneze</h1>
       <div class="sub" id="dateLabel"></div>
     </div>
-    <div class="actions"><button class="g" id="todayBtn">Today</button><button class="g" id="themeBtn">☀︎</button><button class="g" id="exportBtn">Export</button><button class="g" id="adminBtn" style="display:none">Admin</button><button
+    <div class="actions"><button class="g" id="todayBtn">Today</button><button class="g" id="themeBtn">☀︎</button><button class="g" id="adminBtn" style="display:none">Admin</button><button
         class="g" id="logoutBtn">Log out</button></div>
   </header>
   <div class="wrap hide" id="app">
@@ -939,11 +939,8 @@
         S.theme = THEMES[(idx + 1) % THEMES.length];
         save(); applyTheme(); render();
       };
-      $('exportBtn').onclick = async () => {
-        const data = JSON.stringify(S, null, 2);
-        try { const dl = await claude.use('downloads'); if (dl) { await dl.save({ filename: 'daily-tracker-backup.json', data }); return } } catch (e) { }
-        try { await navigator.clipboard.writeText(data); alert('Backup copied to clipboard') } catch (e) { prompt('Copy your backup:', data) }
-      };
+
+      
 
       // start with local data, then upgrade to private cloud storage if available
       // ---- Supabase auth + sync ----
