@@ -132,7 +132,7 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
     <div id="habits"></div>
     <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button class="b" id="habitAdd">Add</button></div>
     <div class="chips" id="dayChips"></div>
-    
+    </div>
 </div>
 <div class="page">
 <div class="card">
@@ -171,7 +171,7 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 <nav class="tabbar" id="tabbar"><button class="on"><span>🏠</span>Today</button><button><span>✅</span>Plan</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
 </div>
 
-<script>window.APP_CONFIG={SUPABASE_URL: "https://vhgmrbiinyjknxwbapnb.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4"};</script>
+<script>window.APP_CONFIG={SUPABASE_URL:"https://vhgmrbiinyjknxwbapnb.supabase.co",SUPABASE_ANON_KEY:"PASTE-YOUR-PUBLISHABLE-KEY-HERE"};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
@@ -329,14 +329,6 @@ function render(){
     const c=document.createElement('div');c.className='wc';
     c.innerHTML=`<i style="height:${Math.max(3,frac(k)*80)}px"></i><div>${d.toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</div>`;
     wk.appendChild(c);
-  }
-
-  // water
-  const w=S.water[sel]||0, wb=$('water'); wb.innerHTML='';
-  for(let i=1;i<=8;i++){
-    const g=document.createElement('button');g.className='glass'+(i<=w?' on':'');g.setAttribute('aria-label','glass '+i);
-    g.onclick=()=>{S.water[sel]=(w===i?i-1:i);save();render()};
-    wb.appendChild(g);
   }
 
 
