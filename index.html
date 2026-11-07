@@ -132,8 +132,7 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
     <div id="habits"></div>
     <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button class="b" id="habitAdd">Add</button></div>
     <div class="chips" id="dayChips"></div>
-    <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week keeps your streak. Tap an activity name to change its days.</span></div>
-  </div>
+    
 </div>
 <div class="page">
 <div class="card">
@@ -340,17 +339,6 @@ function render(){
     wb.appendChild(g);
   }
 
-  // weekday chips for new activity
-  const ch=$('dayChips');ch.innerHTML='<span class="sub" style="align-self:center">Repeat on:</span>';
-  [1,2,3,4,5,6,0].forEach(i=>{const c=document.createElement('button');c.className='chip'+(newDays.has(i)?' on':'');c.textContent=DN[i].slice(0,2);c.onclick=()=>{newDays.has(i)?newDays.delete(i):newDays.add(i);render()};ch.appendChild(c)});
-
-  // rest day
-  const fb=$('freezeBtn');fb.textContent=S.freeze[sel]?'Remove rest day':'❄ Use rest day';
-  fb.onclick=()=>{
-    if(S.freeze[sel])delete S.freeze[sel];
-    else{if(weekFreeze(sel)){alert('You already used a rest day this week.');return}S.freeze[sel]=true}
-    save();render();
-  };
 
   // yearly heatmap
   const hm=$('heat');hm.innerHTML='';
