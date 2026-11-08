@@ -58,6 +58,10 @@ button.g{background:var(--bg);color:var(--ink);border:1px solid var(--line);bord
 .week{display:flex;gap:8px;align-items:flex-end;height:110px}
 .wc{flex:1;text-align:center;font-size:11px;color:var(--mut);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
 .wc i{display:block;background:var(--acc);border-radius:5px 5px 0 0;min-height:3px;opacity:.85}
+.water{display:flex;gap:6px;flex-wrap:wrap}
+.glass{width:30px;height:38px;border:2px solid var(--line);border-radius:4px 4px 9px 9px;background:none;cursor:pointer;padding:0}
+.glass.on{background:#6aaee0;border-color:#6aaee0}
+.empty{color:var(--mut);font-size:13px;padding:6px}
 .chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:none;color:var(--mut);border-radius:20px;padding:3px 9px;font:inherit;font-size:12px;cursor:pointer}
 .chip.on{background:var(--accl);color:var(--ink);border-color:var(--acc)}
@@ -103,16 +107,12 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
  .stat b{font-size:17px}
  .stat span{font-size:10px}
 }
-#pad{position:fixed;left:0;right:0;z-index:4;background:var(--card);border-top:1px solid var(--line);bottom:0}
-#padHead{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:0;color:var(--ink);font:inherit;font-weight:600;padding:9px 14px;cursor:pointer}
-#padText{display:none;width:100%;height:130px;min-height:0;border:0;border-top:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);font:inherit;padding:10px 14px;resize:none;outline:none}
-#pad.open #padText{display:block}
-@media(max-width:760px){.page{padding-bottom:110px!important}html.padopen .page{padding-bottom:250px!important}}
-@media(min-width:761px){
-  #pad{left:50%;right:auto;transform:translateX(-50%);width:min(980px,calc(100% - 28px));border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0}
-  .wrap{padding-bottom:90px}
-  html.padopen .wrap{padding-bottom:240px}
-}
+#padFab{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding:0}
+#padFab:active{transform:scale(.94)}
+#padModal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
+.padbox{width:min(520px,100%);height:min(420px,70vh);background:var(--card);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.padtop{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600}
+#padText{flex:1;width:100%;min-height:0;border:0;border-radius:0;background:var(--bg);color:var(--ink);font:inherit;padding:12px 14px;resize:none;outline:none}
 </style>
 </head>
 <body>
@@ -144,6 +144,8 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
     <div id="habits"></div>
     <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button class="b" id="habitAdd">Add</button></div>
     <div class="chips" id="dayChips"></div>
+    <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week keeps your streak. Tap an activity name to change its days.</span></div>
+  </div>
 </div>
 <div class="page">
 <div class="card">
@@ -155,12 +157,17 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
     <h2>Daily note / journal</h2>
     <textarea id="note" placeholder="How did the day go?"></textarea>
   </div>
+<div class="card">
+    <h2>Water (glasses)</h2>
+    <div class="water" id="water"></div>
+  </div>
 </div>
 <div class="page">
 <div class="card">
     <h2>Calendar</h2>
     <div class="mh"><button class="g" id="prev">‹</button><b id="monthLabel"></b><button class="g" id="next">›</button></div>
     <div class="cal" id="cal"></div>
+    <div class="sub" style="margin-top:8px">Filled = all done · tinted = partial</div>
   </div>
 </div>
 <div class="page">
@@ -173,10 +180,11 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 
 </div>
 <div class="sub" id="syncLabel" style="margin-top:14px;text-align:center"></div>
-<div id="pad">
-  <button id="padHead" type="button">📝 Notepad <span id="padArrow">▲</span></button>
+<button id="padFab" type="button" aria-label="Open notepad">📝</button>
+<div id="padModal"><div class="padbox">
+  <div class="padtop"><span>📝 Notepad</span><button class="g" id="padClose" type="button">Close</button></div>
   <textarea id="padText" placeholder="Jot anything down… it saves automatically"></textarea>
-</div>
+</div></div>
 <nav class="tabbar" id="tabbar"><button class="on"><span>🏠</span>Today</button><button><span>✅</span>Plan</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
 </div>
 
@@ -192,7 +200,7 @@ const parse=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const todayKey=()=>key(new Date());
 
-let S={habits:[],log:{},todos:[],notes:{},theme:'',freeze:{}};
+let S={habits:[],log:{},todos:[],notes:{},water:{},theme:'',freeze:{}};
 let sel=todayKey(), view=parse(sel); view.setDate(1);
 let cloudRef=null, saveTimer=null;
 
@@ -201,7 +209,7 @@ function loadLocal(){
   return null;
 }
 function norm(o){
-  const d={habits:[],log:{},todos:[],notes:{},theme:'',freeze:{}};
+  const d={habits:[],log:{},todos:[],notes:{},water:{},theme:'',freeze:{}};
   return Object.assign(d,o||{});
 }
 function save(){
@@ -340,7 +348,26 @@ function render(){
     wk.appendChild(c);
   }
 
- 
+  // water
+  const w=S.water[sel]||0, wb=$('water'); wb.innerHTML='';
+  for(let i=1;i<=8;i++){
+    const g=document.createElement('button');g.className='glass'+(i<=w?' on':'');g.setAttribute('aria-label','glass '+i);
+    g.onclick=()=>{S.water[sel]=(w===i?i-1:i);save();render()};
+    wb.appendChild(g);
+  }
+
+  // weekday chips for new activity
+  const ch=$('dayChips');ch.innerHTML='<span class="sub" style="align-self:center">Repeat on:</span>';
+  [1,2,3,4,5,6,0].forEach(i=>{const c=document.createElement('button');c.className='chip'+(newDays.has(i)?' on':'');c.textContent=DN[i].slice(0,2);c.onclick=()=>{newDays.has(i)?newDays.delete(i):newDays.add(i);render()};ch.appendChild(c)});
+
+  // rest day
+  const fb=$('freezeBtn');fb.textContent=S.freeze[sel]?'Remove rest day':'❄ Use rest day';
+  fb.onclick=()=>{
+    if(S.freeze[sel])delete S.freeze[sel];
+    else{if(weekFreeze(sel)){alert('You already used a rest day this week.');return}S.freeze[sel]=true}
+    save();render();
+  };
+
   // yearly heatmap
   const hm=$('heat');hm.innerHTML='';
   const hs=new Date();hs.setDate(hs.getDate()-364);hs.setDate(hs.getDate()-((hs.getDay()+6)%7));
@@ -353,7 +380,7 @@ function render(){
   }
 
   const pd=$('padText'); if(document.activeElement!==pd) pd.value=S.pad||'';
-  $('pad').style.bottom=$('tabbar').offsetHeight+'px';
+  place();
 
   // note
   const n=$('note'); if(document.activeElement!==n) n.value=S.notes[sel]||'';
@@ -515,10 +542,15 @@ sb.auth.onAuthStateChange((ev,session)=>{
     if(session&&session.user){if(UID!==session.user.id)enter(session.user)}else if(UID||ev==='SIGNED_OUT')showLogin();
   },0);
 });
-let padOpen=false;
-$('padHead').onclick=()=>{padOpen=!padOpen;$('pad').classList.toggle('open',padOpen);document.documentElement.classList.toggle('padopen',padOpen);$('padArrow').textContent=padOpen?'▼':'▲';$('pad').style.bottom=$('tabbar').offsetHeight+'px'};
+function place(){$('padFab').style.bottom=($('tabbar').offsetHeight+16)+'px'}
+const pm=$('padModal');
+const openPad=()=>{pm.style.display='flex';$('padText').focus()};
+const closePad=()=>{pm.style.display='none'};
+$('padFab').onclick=openPad;$('padClose').onclick=closePad;
+pm.onclick=e=>{if(e.target===pm)closePad()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closePad()});
 $('padText').oninput=e=>{S.pad=e.target.value;save()};
-addEventListener('resize',()=>{$('pad').style.bottom=$('tabbar').offsetHeight+'px'});
+addEventListener('resize',place);
 const pg=$('pager'),tabs=[...document.querySelectorAll('#tabbar button')];
 tabs.forEach((b,i)=>b.onclick=()=>pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'}));
 pg.addEventListener('scroll',()=>{const i=Math.round(pg.scrollLeft/(pg.clientWidth||1));tabs.forEach((b,j)=>b.classList.toggle('on',i===j))},{passive:true});
