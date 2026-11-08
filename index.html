@@ -107,6 +107,16 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
  .stat b{font-size:17px}
  .stat span{font-size:10px}
 }
+#pad{position:fixed;left:0;right:0;z-index:4;background:var(--card);border-top:1px solid var(--line);bottom:0}
+#padHead{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:0;color:var(--ink);font:inherit;font-weight:600;padding:9px 14px;cursor:pointer}
+#padText{display:none;width:100%;height:130px;min-height:0;border:0;border-top:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);font:inherit;padding:10px 14px;resize:none;outline:none}
+#pad.open #padText{display:block}
+@media(max-width:760px){.page{padding-bottom:110px!important}html.padopen .page{padding-bottom:250px!important}}
+@media(min-width:761px){
+  #pad{left:50%;right:auto;transform:translateX(-50%);width:min(980px,calc(100% - 28px));border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0}
+  .wrap{padding-bottom:90px}
+  html.padopen .wrap{padding-bottom:240px}
+}
 </style>
 </head>
 <body>
@@ -174,10 +184,14 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 
 </div>
 <div class="sub" id="syncLabel" style="margin-top:14px;text-align:center"></div>
+<div id="pad">
+  <button id="padHead" type="button">📝 Notepad <span id="padArrow">▲</span></button>
+  <textarea id="padText" placeholder="Jot anything down… it saves automatically"></textarea>
+</div>
 <nav class="tabbar" id="tabbar"><button class="on"><span>🏠</span>Today</button><button><span>✅</span>Plan</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
 </div>
 
-<script>window.APP_CONFIG={SUPABASE_URL: "https://vhgmrbiinyjknxwbapnb.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4"};</script>
+<script>window.APP_CONFIG={SUPABASE_URL:"https://vhgmrbiinyjknxwbapnb.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4"};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
@@ -368,6 +382,9 @@ function render(){
     hm.appendChild(c);
   }
 
+  const pd=$('padText'); if(document.activeElement!==pd) pd.value=S.pad||'';
+  $('pad').style.bottom=$('tabbar').offsetHeight+'px';
+
   // note
   const n=$('note'); if(document.activeElement!==n) n.value=S.notes[sel]||'';
 }
@@ -528,6 +545,10 @@ sb.auth.onAuthStateChange((ev,session)=>{
     if(session&&session.user){if(UID!==session.user.id)enter(session.user)}else if(UID||ev==='SIGNED_OUT')showLogin();
   },0);
 });
+let padOpen=false;
+$('padHead').onclick=()=>{padOpen=!padOpen;$('pad').classList.toggle('open',padOpen);document.documentElement.classList.toggle('padopen',padOpen);$('padArrow').textContent=padOpen?'▼':'▲';$('pad').style.bottom=$('tabbar').offsetHeight+'px'};
+$('padText').oninput=e=>{S.pad=e.target.value;save()};
+addEventListener('resize',()=>{$('pad').style.bottom=$('tabbar').offsetHeight+'px'});
 const pg=$('pager'),tabs=[...document.querySelectorAll('#tabbar button')];
 tabs.forEach((b,i)=>b.onclick=()=>pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'}));
 pg.addEventListener('scroll',()=>{const i=Math.round(pg.scrollLeft/(pg.clientWidth||1));tabs.forEach((b,j)=>b.classList.toggle('on',i===j))},{passive:true});
