@@ -86,26 +86,38 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 .hc{width:12px;height:12px;border-radius:3px;background:var(--line)}
 
 :root[data-theme="beige"]{--bg:#efe4cf;--card:#f8f0df;--ink:#3a3024;--mut:#8b7a62;--line:#ddcdb0;--acc:#9a6b3a;--accl:#ecdcc0;--warn:#c4872a;--warnl:#f3e2bf}
-.page{display:contents}
-.tabbar{display:none}
+html,body{height:100%;overflow:hidden}
+:root{padding-bottom:0}
+.wrap{max-width:none;margin:0;padding:0;height:calc(100dvh - env(safe-area-inset-top,0px));display:flex;flex-direction:column}
+header{padding:10px 14px 6px;margin:0;flex:none}
+h1{font-size:20px}
+.grid{display:flex;flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:0;scrollbar-width:none;overscroll-behavior-x:contain}
+.grid::-webkit-scrollbar{display:none}
+.page{display:flex;flex-direction:column;gap:12px;flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;overflow-x:hidden;padding:8px 14px 12px}
+.page>.card{flex:none;width:100%;max-width:760px;margin:0 auto}
+.page>.card.grow{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;max-height:640px}
+.page>.card.narrow{max-width:460px}
+#habits,#todos{flex:1;min-height:0;overflow-y:auto}
+.card.grow textarea{flex:1;resize:none;min-height:0}
+.tabbar{display:flex;flex:none;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabbar button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;cursor:pointer}
+.tabbar button span{font-size:20px;line-height:1}
+.tabbar button.on{color:var(--acc);font-weight:600}
+#syncLabel{flex:none;margin:2px 0!important;font-size:11px}
+.navbtn{display:none}
 @media(max-width:760px){
- html,body{height:100%;overflow:hidden}
- .wrap{max-width:none;padding:0;height:calc(100dvh - env(safe-area-inset-top,0px));display:flex;flex-direction:column}
- header{padding:10px 14px 6px;margin:0}
- h1{font-size:18px}
- .grid{display:flex;flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:0;scrollbar-width:none;overscroll-behavior-x:contain}
- .grid::-webkit-scrollbar{display:none}
- .page{display:flex;flex-direction:column;gap:12px;flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;padding:6px 14px 90px}
- .page>.card{flex:none}
- .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
- .tabbar button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;cursor:pointer}
- .tabbar button span{font-size:20px;line-height:1}
- .tabbar button.on{color:var(--acc);font-weight:600}
+ .page{padding-bottom:74px}
  #exportBtn,#syncLabel{display:none}
  .stats{grid-template-columns:repeat(4,1fr);gap:6px}
  .stat{padding:8px 2px}
  .stat b{font-size:17px}
  .stat span{font-size:10px}
+}
+@media(min-width:761px){
+ .tabbar{justify-content:center}
+ .tabbar button{flex:0 1 110px}
+ .navbtn{display:flex;position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:24px;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:0}
+ #navPrev{left:12px}#navNext{right:12px}
 }
 #padFab{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding:0}
 #padFab:active{transform:scale(.94)}
@@ -138,6 +150,12 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 <div class="card full"><div class="stats" id="stats"></div></div>
 <div class="card full"><div style="font-size:20px;font-weight:700" id="heyLine"></div><div style="margin-top:6px"><span class="sub">quote:</span> <span id="quoteText" style="font-style:italic"></span> <span class="sub" id="quoteBy"></span></div></div>
 <div class="card">
+    <h2>Water (glasses)</h2>
+    <div class="water" id="water"></div>
+  </div>
+</div>
+<div class="page">
+<div class="card grow">
     <h2>Daily activities</h2>
     <div class="sub" id="progText"></div>
     <div class="bar"><i id="progBar"></i></div>
@@ -148,22 +166,20 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
   </div>
 </div>
 <div class="page">
-<div class="card">
+<div class="card grow">
     <h2>One-off to-dos (this day)</h2>
     <div id="todos"></div>
     <div class="add"><input type="text" id="todoIn" placeholder="Add a to-do…" maxlength="120"><button class="b" id="todoAdd">Add</button></div>
   </div>
-<div class="card">
+</div>
+<div class="page">
+<div class="card grow">
     <h2>Daily note / journal</h2>
     <textarea id="note" placeholder="How did the day go?"></textarea>
   </div>
-<div class="card">
-    <h2>Water (glasses)</h2>
-    <div class="water" id="water"></div>
-  </div>
 </div>
 <div class="page">
-<div class="card">
+<div class="card narrow">
     <h2>Calendar</h2>
     <div class="mh"><button class="g" id="prev">‹</button><b id="monthLabel"></b><button class="g" id="next">›</button></div>
     <div class="cal" id="cal"></div>
@@ -185,7 +201,8 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
   <div class="padtop"><span>📝 Notepad</span><button class="g" id="padClose" type="button">Close</button></div>
   <textarea id="padText" placeholder="Jot anything down… it saves automatically"></textarea>
 </div></div>
-<nav class="tabbar" id="tabbar"><button class="on"><span>🏠</span>Today</button><button><span>✅</span>Plan</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
+<button class="navbtn" id="navPrev" aria-label="Previous">‹</button><button class="navbtn" id="navNext" aria-label="Next">›</button>
+<nav class="tabbar" id="tabbar"><button class="on"><span>🏠</span>Home</button><button><span>✅</span>Habits</button><button><span>📋</span>To-do</button><button><span>📓</span>Journal</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
 </div>
 
 <script>window.APP_CONFIG={SUPABASE_URL:"https://vhgmrbiinyjknxwbapnb.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4"};</script>
@@ -554,6 +571,9 @@ addEventListener('resize',place);
 const pg=$('pager'),tabs=[...document.querySelectorAll('#tabbar button')];
 tabs.forEach((b,i)=>b.onclick=()=>pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'}));
 pg.addEventListener('scroll',()=>{const i=Math.round(pg.scrollLeft/(pg.clientWidth||1));tabs.forEach((b,j)=>b.classList.toggle('on',i===j))},{passive:true});
+const go=d=>{const i=Math.max(0,Math.min(tabs.length-1,Math.round(pg.scrollLeft/(pg.clientWidth||1))+d));pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'})};
+$('navPrev').onclick=()=>go(-1);$('navNext').onclick=()=>go(1);
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName))return;if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowRight')go(1)});
 setMode('in');
 if(CFG.SUPABASE_URL.indexOf('YOUR-PROJECT')>=0)$('lgErr').textContent='Setup needed: add your Supabase keys at the top of index.html';
 
