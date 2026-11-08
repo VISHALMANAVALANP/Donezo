@@ -351,26 +351,7 @@ function render(){
     wk.appendChild(c);
   }
 
-  // water
-  const w=S.water[sel]||0, wb=$('water'); wb.innerHTML='';
-  for(let i=1;i<=8;i++){
-    const g=document.createElement('button');g.className='glass'+(i<=w?' on':'');g.setAttribute('aria-label','glass '+i);
-    g.onclick=()=>{S.water[sel]=(w===i?i-1:i);save();render()};
-    wb.appendChild(g);
-  }
-
-  // weekday chips for new activity
-  const ch=$('dayChips');ch.innerHTML='<span class="sub" style="align-self:center">Repeat on:</span>';
-  [1,2,3,4,5,6,0].forEach(i=>{const c=document.createElement('button');c.className='chip'+(newDays.has(i)?' on':'');c.textContent=DN[i].slice(0,2);c.onclick=()=>{newDays.has(i)?newDays.delete(i):newDays.add(i);render()};ch.appendChild(c)});
-
-  // rest day
-  const fb=$('freezeBtn');fb.textContent=S.freeze[sel]?'Remove rest day':'❄ Use rest day';
-  fb.onclick=()=>{
-    if(S.freeze[sel])delete S.freeze[sel];
-    else{if(weekFreeze(sel)){alert('You already used a rest day this week.');return}S.freeze[sel]=true}
-    save();render();
-  };
-
+ 
   // yearly heatmap
   const hm=$('heat');hm.innerHTML='';
   const hs=new Date();hs.setDate(hs.getDate()-364);hs.setDate(hs.getDate()-((hs.getDay()+6)%7));
