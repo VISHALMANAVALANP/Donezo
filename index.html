@@ -58,10 +58,6 @@ button.g{background:var(--bg);color:var(--ink);border:1px solid var(--line);bord
 .week{display:flex;gap:8px;align-items:flex-end;height:110px}
 .wc{flex:1;text-align:center;font-size:11px;color:var(--mut);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
 .wc i{display:block;background:var(--acc);border-radius:5px 5px 0 0;min-height:3px;opacity:.85}
-.water{display:flex;gap:6px;flex-wrap:wrap}
-.glass{width:30px;height:38px;border:2px solid var(--line);border-radius:4px 4px 9px 9px;background:none;cursor:pointer;padding:0}
-.glass.on{background:#6aaee0;border-color:#6aaee0}
-.empty{color:var(--mut);font-size:13px;padding:6px}
 .chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:none;color:var(--mut);border-radius:20px;padding:3px 9px;font:inherit;font-size:12px;cursor:pointer}
 .chip.on{background:var(--accl);color:var(--ink);border-color:var(--acc)}
@@ -148,8 +144,6 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
     <div id="habits"></div>
     <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button class="b" id="habitAdd">Add</button></div>
     <div class="chips" id="dayChips"></div>
-    <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week keeps your streak. Tap an activity name to change its days.</span></div>
-  </div>
 </div>
 <div class="page">
 <div class="card">
@@ -160,10 +154,6 @@ input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px so
 <div class="card">
     <h2>Daily note / journal</h2>
     <textarea id="note" placeholder="How did the day go?"></textarea>
-  </div>
-<div class="card">
-    <h2>Water (glasses)</h2>
-    <div class="water" id="water"></div>
   </div>
 </div>
 <div class="page">
@@ -203,7 +193,7 @@ const parse=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const todayKey=()=>key(new Date());
 
-let S={habits:[],log:{},todos:[],notes:{},water:{},theme:'',freeze:{}};
+let S={habits:[],log:{},todos:[],notes:{},theme:'',freeze:{}};
 let sel=todayKey(), view=parse(sel); view.setDate(1);
 let cloudRef=null, saveTimer=null;
 
@@ -212,7 +202,7 @@ function loadLocal(){
   return null;
 }
 function norm(o){
-  const d={habits:[],log:{},todos:[],notes:{},water:{},theme:'',freeze:{}};
+  const d={habits:[],log:{},todos:[],notes:{},theme:'',freeze:{}};
   return Object.assign(d,o||{});
 }
 function save(){
