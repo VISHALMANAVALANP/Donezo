@@ -1,1301 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Daily Tracker</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2f7d5b">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Donezo">
-  <style>
-    :root {
-      --bg: #f6f5f1;
-      --card: #fff;
-      --ink: #1d1d1b;
-      --mut: #77756e;
-      --line: #e6e4dc;
-      --acc: #2f7d5b;
-      --accl: #dcefe5;
-      --warn: #e0a23b;
-      --warnl: #faedd2;
-      box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px)
-    }
-
-    @media (prefers-color-scheme:dark) {
-      :root:not([data-theme]) {
-        --bg: #141413;
-        --card: #1e1e1c;
-        --ink: #efeee8;
-        --mut: #9a988f;
-        --line: #333330;
-        --acc: #4fb58a;
-        --accl: #1f3a2f;
-        --warn: #e7b04f;
-        --warnl: #3b3220
-      }
-    }
-
-    :root[data-theme="dark"] {
-      --bg: #141413;
-      --card: #1e1e1c;
-      --ink: #efeee8;
-      --mut: #9a988f;
-      --line: #333330;
-      --acc: #4fb58a;
-      --accl: #1f3a2f;
-      --warn: #e7b04f;
-      --warnl: #3b3220
-    }
-
-    * {
-      box-sizing: border-box
-    }
-
-    html {
-      scroll-padding-top: env(safe-area-inset-top, 0px)
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
-    }
-
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px 14px 60px
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px
-    }
-
-    h1 {
-      font-size: 22px;
-      margin: 0
-    }
-
-    .sub {
-      color: var(--mut);
-      font-size: 13px
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px
-    }
-
-    @media(max-width:760px) {
-      .grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px
-    }
-
-    .card h2 {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--mut);
-      margin: 0 0 10px;
-      font-weight: 600
-    }
-
-    .full {
-      grid-column: 1/-1
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px
-    }
-
-    @media(max-width:500px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr)
-      }
-    }
-
-    .stat {
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center
-    }
-
-    .stat b {
-      font-size: 24px;
-      display: block
-    }
-
-    .stat span {
-      font-size: 12px;
-      color: var(--mut)
-    }
-
-    .bar {
-      height: 10px;
-      background: var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      margin: 6px 0 2px
-    }
-
-    .bar i {
-      display: block;
-      height: 100%;
-      background: var(--acc);
-      width: 0;
-      transition: width .3s
-    }
-
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 6px;
-      border-bottom: 1px solid var(--line)
-    }
-
-    .row:last-child {
-      border: 0
-    }
-
-    .chk {
-      width: 24px;
-      height: 24px;
-      border-radius: 7px;
-      border: 2px solid var(--line);
-      background: none;
-      cursor: pointer;
-      flex: none;
-      color: #fff;
-      font-size: 15px;
-      line-height: 1;
-      padding: 0
-    }
-
-    .chk.on {
-      background: var(--acc);
-      border-color: var(--acc)
-    }
-
-    .row .t {
-      flex: 1;
-      min-width: 0;
-      word-break: break-word
-    }
-
-    .row.done .t {
-      text-decoration: line-through;
-      color: var(--mut)
-    }
-
-    .badge {
-      font-size: 12px;
-      color: var(--warn);
-      background: var(--warnl);
-      border-radius: 20px;
-      padding: 1px 8px;
-      white-space: nowrap
-    }
-
-    .x {
-      background: none;
-      border: 0;
-      color: var(--mut);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 2px 6px
-    }
-
-    .add {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px
-    }
-
-    input[type=text],
-    textarea {
-      flex: 1;
-      width: 100%;
-      background: var(--bg);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      padding: 9px 10px;
-      font: inherit
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 70px
-    }
-
-    button.b {
-      background: var(--acc);
-      color: #fff;
-      border: 0;
-      border-radius: 9px;
-      padding: 9px 14px;
-      font: inherit;
-      cursor: pointer
-    }
-
-    button.g {
-      background: var(--bg);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      padding: 6px 11px;
-      font: inherit;
-      cursor: pointer
-    }
-
-    .cal {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px
-    }
-
-    .cal .h {
-      font-size: 11px;
-      color: var(--mut);
-      text-align: center
-    }
-
-    .d {
-      aspect-ratio: 1;
-      border-radius: 9px;
-      border: 1px solid var(--line);
-      background: none;
-      color: var(--ink);
-      font: inherit;
-      font-size: 13px;
-      cursor: pointer;
-      position: relative;
-      padding: 0
-    }
-
-    .d.full {
-      background: var(--acc);
-      color: #fff;
-      border-color: var(--acc);
-      grid-column: auto
-    }
-
-    .d.part {
-      background: var(--accl)
-    }
-
-    .d.sel {
-      outline: 2px solid var(--ink);
-      outline-offset: 1px
-    }
-
-    .d.today {
-      font-weight: 700;
-      border-color: var(--ink)
-    }
-
-    .d.fut {
-      opacity: .45
-    }
-
-    .mh {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px
-    }
-
-    .week {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-      height: 110px
-    }
-
-    .wc {
-      flex: 1;
-      text-align: center;
-      font-size: 11px;
-      color: var(--mut);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      height: 100%
-    }
-
-    .wc i {
-      display: block;
-      background: var(--acc);
-      border-radius: 5px 5px 0 0;
-      min-height: 3px;
-      opacity: .85
-    }
-
-    .empty {
-      color: var(--mut);
-      font-size: 13px;
-      padding: 6px
-    }
-
-    .chips {
-      display: flex;
-      gap: 5px;
-      margin-top: 8px;
-      flex-wrap: wrap
-    }
-
-    .chip {
-      border: 1px solid var(--line);
-      background: none;
-      color: var(--mut);
-      border-radius: 20px;
-      padding: 3px 9px;
-      font: inherit;
-      font-size: 12px;
-      cursor: pointer
-    }
-
-    .chip.on {
-      background: var(--accl);
-      color: var(--ink);
-      border-color: var(--acc)
-    }
-
-    .row.off {
-      opacity: .45
-    }
-
-    .row .t {
-      cursor: pointer
-    }
-
-    .wrap.hide {
-      display: none
-    }
-
-    #login {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 50;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      overflow: auto
-    }
-
-    .lbox {
-      width: 100%;
-      max-width: 360px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 22px
-    }
-
-    .lbox input,
-    .lbox select {
-      flex: none
-    }
-
-    input[type=password],
-    select {
-      width: 100%;
-      background: var(--bg);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      padding: 9px 10px;
-      font: inherit
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px
-    }
-
-    .tabs .g {
-      flex: 1
-    }
-
-    .tabs .g.on {
-      background: var(--accl);
-      border-color: var(--acc)
-    }
-
-    .err {
-      color: #d2483c;
-      font-size: 13px;
-      min-height: 18px
-    }
-
-    input[type=email] {
-      width: 100%;
-      background: var(--bg);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      padding: 9px 10px;
-      font: inherit
-    }
-
-    #admin {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 60;
-      overflow: auto;
-      padding: 16px;
-      justify-content: center
-    }
-
-    .abox {
-      width: 100%;
-      max-width: 900px
-    }
-
-    #adminBody table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px
-    }
-
-    #adminBody td,
-    #adminBody th {
-      text-align: left;
-      padding: 6px;
-      border-bottom: 1px solid var(--line)
-    }
-
-    #adminBody h2 {
-      font-size: 13px;
-      color: var(--mut);
-      margin: 0
-    }
-
-    .heat {
-      display: grid;
-      grid-auto-flow: column;
-      grid-template-rows: repeat(7, 12px);
-      grid-auto-columns: 12px;
-      gap: 3px;
-      width: max-content
-    }
-
-    .hc {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      background: var(--line)
-    }
-
-    :root[data-theme="beige"] {
-      --bg: #efe4cf;
-      --card: #f8f0df;
-      --ink: #3a3024;
-      --mut: #8b7a62;
-      --line: #ddcdb0;
-      --acc: #9a6b3a;
-      --accl: #ecdcc0;
-      --warn: #c4872a;
-      --warnl: #f3e2bf
-    }
-
-    html,
-    body {
-      height: 100%;
-      overflow: hidden
-    }
-
-    :root {
-      padding-bottom: 0
-    }
-
-    .wrap {
-      max-width: none;
-      margin: 0;
-      padding: 0;
-      height: calc(100dvh - env(safe-area-inset-top, 0px));
-      display: flex;
-      flex-direction: column
-    }
-
-    header {
-      padding: 10px 14px 6px;
-      margin: 0;
-      flex: none
-    }
-
-    h1 {
-      font-size: 20px
-    }
-
-    .grid {
-      display: flex;
-      flex: 1;
-      min-height: 0;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-snap-type: x mandatory;
-      gap: 0;
-      scrollbar-width: none;
-      overscroll-behavior-x: contain
-    }
-
-    .grid::-webkit-scrollbar {
-      display: none
-    }
-
-    .page {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 0 0 100%;
-      min-width: 0;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 8px 14px 12px
-    }
-
-    .page>.card {
-      flex: none;
-      width: 100%;
-      max-width: 760px;
-      margin: 0 auto
-    }
-
-    .page>.card.grow {
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      max-height: 640px
-    }
-
-    .page>.card.narrow {
-      max-width: 460px
-    }
-
-    #habits,
-    #todos {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto
-    }
-
-    .card.grow textarea {
-      flex: 1;
-      resize: none;
-      min-height: 0
-    }
-
-    .tabbar {
-      display: flex;
-      flex: none;
-      background: var(--card);
-      border-top: 1px solid var(--line);
-      padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
-      z-index: 5
-    }
-
-    .tabbar button {
-      flex: 1;
-      background: none;
-      border: 0;
-      color: var(--mut);
-      font: inherit;
-      font-size: 11px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 4px;
-      cursor: pointer
-    }
-
-    .tabbar button span {
-      font-size: 20px;
-      line-height: 1
-    }
-
-    .tabbar button.on {
-      color: var(--acc);
-      font-weight: 600
-    }
-
-    #syncLabel {
-      flex: none;
-      margin: 2px 0 !important;
-      font-size: 11px
-    }
-
-    .navbtn {
-      display: none
-    }
-
-    @media(max-width:760px) {
-      .page {
-        padding-bottom: 74px
-      }
-
-      #syncLabel {
-        display: none
-      }
-
-      .stats {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px
-      }
-
-      .stat {
-        padding: 8px 2px
-      }
-
-      .stat b {
-        font-size: 17px
-      }
-
-      .stat span {
-        font-size: 10px
-      }
-    }
-
-    @media(min-width:761px) {
-      .tabbar {
-        justify-content: center
-      }
-
-      .tabbar button {
-        flex: 0 1 110px
-      }
-
-      .navbtn {
-        display: flex;
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 1px solid var(--line);
-        background: var(--card);
-        color: var(--ink);
-        font-size: 24px;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 4;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, .15);
-        padding: 0
-      }
-
-      #navPrev {
-        left: 12px
-      }
-
-      #navNext {
-        right: 12px
-      }
-    }
-
-    #padFab {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: 0;
-      background: var(--acc);
-      color: #fff;
-      font-size: 26px;
-      line-height: 1;
-      cursor: pointer;
-      z-index: 4;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0
-    }
-
-    #padFab:active {
-      transform: scale(.94)
-    }
-
-    #padModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .45);
-      z-index: 40;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px
-    }
-
-    .padbox {
-      width: min(520px, 100%);
-      height: min(420px, 70vh);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, .35)
-    }
-
-    .padtop {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--line);
-      font-weight: 600
-    }
-
-    #padText {
-      flex: 1;
-      width: 100%;
-      min-height: 0;
-      border: 0;
-      border-radius: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font: inherit;
-      padding: 12px 14px;
-      resize: none;
-      outline: none
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f7d5b">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Donezo">
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#77756e;--line:#e6e4dc;--acc:#2f7d5b;--accl:#dcefe5;--warn:#e0a23b;--warnl:#faedd2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#141413;--card:#1e1e1c;--ink:#efeee8;--mut:#9a988f;--line:#333330;--acc:#4fb58a;--accl:#1f3a2f;--warn:#e7b04f;--warnl:#3b3220}}
+:root[data-theme="dark"]{--bg:#141413;--card:#1e1e1c;--ink:#efeee8;--mut:#9a988f;--line:#333330;--acc:#4fb58a;--accl:#1f3a2f;--warn:#e7b04f;--warnl:#3b3220}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:22px;margin:0}
+.sub{color:var(--mut);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px;font-weight:600}
+.full{grid-column:1/-1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:500px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat b{font-size:24px;display:block}
+.stat span{font-size:12px;color:var(--mut)}
+.bar{height:10px;background:var(--line);border-radius:8px;overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+.chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);background:none;cursor:pointer;flex:none;color:#fff;font-size:15px;line-height:1;padding:0}
+.chk.on{background:var(--acc);border-color:var(--acc)}
+.row .t{flex:1;min-width:0;word-break:break-word}
+.row.done .t{text-decoration:line-through;color:var(--mut)}
+.badge{font-size:12px;color:var(--warn);background:var(--warnl);border-radius:20px;padding:1px 8px;white-space:nowrap}
+.x{background:none;border:0;color:var(--mut);cursor:pointer;font-size:16px;padding:2px 6px}
+.add{display:flex;gap:8px;margin-top:10px}
+input[type=text],textarea{flex:1;width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit}
+textarea{resize:vertical;min-height:70px}
+button.b{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:9px 14px;font:inherit;cursor:pointer}
+button.g{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font:inherit;cursor:pointer}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .h{font-size:11px;color:var(--mut);text-align:center}
+.d{aspect-ratio:1;border-radius:9px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;position:relative;padding:0}
+.d.full{background:var(--acc);color:#fff;border-color:var(--acc);grid-column:auto}
+.d.part{background:var(--accl)}
+.d.sel{outline:2px solid var(--ink);outline-offset:1px}
+.d.today{font-weight:700;border-color:var(--ink)}
+.d.fut{opacity:.45}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.week{display:flex;gap:8px;align-items:flex-end;height:110px}
+.wc{flex:1;text-align:center;font-size:11px;color:var(--mut);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.wc i{display:block;background:var(--acc);border-radius:5px 5px 0 0;min-height:3px;opacity:.85}
+.d.has{border-color:var(--acc)}
+.empty{color:var(--mut);font-size:13px;padding:6px}
+.chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:none;color:var(--mut);border-radius:20px;padding:3px 9px;font:inherit;font-size:12px;cursor:pointer}
+.chip.on{background:var(--accl);color:var(--ink);border-color:var(--acc)}
+.row.off{opacity:.45}
+.row .t{cursor:pointer}
+.wrap.hide{display:none}
+#login{position:fixed;inset:0;background:var(--bg);z-index:50;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.lbox{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.lbox input,.lbox select{flex:none}
+input[type=password],select{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit}
+.tabs{display:flex;gap:8px}
+.tabs .g{flex:1}
+.tabs .g.on{background:var(--accl);border-color:var(--acc)}
+.err{color:#d2483c;font-size:13px;min-height:18px}
+input[type=email]{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit}
+#admin{position:fixed;inset:0;background:var(--bg);z-index:60;overflow:auto;padding:16px;justify-content:center}
+.abox{width:100%;max-width:900px}
+#adminBody table{width:100%;border-collapse:collapse;font-size:13px}
+#adminBody td,#adminBody th{text-align:left;padding:6px;border-bottom:1px solid var(--line)}
+#adminBody h2{font-size:13px;color:var(--mut);margin:0}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,12px);grid-auto-columns:12px;gap:3px;width:max-content}
+.hc{width:12px;height:12px;border-radius:3px;background:var(--line)}
+
+:root[data-theme="beige"]{--bg:#efe4cf;--card:#f8f0df;--ink:#3a3024;--mut:#8b7a62;--line:#ddcdb0;--acc:#9a6b3a;--accl:#ecdcc0;--warn:#c4872a;--warnl:#f3e2bf}
+html,body{height:100%;overflow:hidden}
+:root{padding-bottom:0}
+.wrap{max-width:none;margin:0;padding:0;height:calc(100dvh - env(safe-area-inset-top,0px));display:flex;flex-direction:column}
+header{padding:10px 14px 6px;margin:0;flex:none}
+h1{font-size:20px}
+.grid{display:flex;flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:0;scrollbar-width:none;overscroll-behavior-x:contain}
+.grid::-webkit-scrollbar{display:none}
+.page{display:flex;flex-direction:column;gap:12px;flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;overflow-x:hidden;padding:8px 14px 12px}
+.page>.card{flex:none;width:100%;max-width:760px;margin:0 auto}
+.page>.card.grow{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;max-height:640px}
+.page>.card.narrow{max-width:460px}
+#habits,#todos{flex:1;min-height:0;overflow-y:auto}
+.card.grow textarea{flex:1;resize:none;min-height:0}
+.tabbar{display:flex;flex:none;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabbar button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;cursor:pointer}
+.tabbar button span{font-size:20px;line-height:1}
+.tabbar button.on{color:var(--acc);font-weight:600}
+#syncLabel{flex:none;margin:2px 0!important;font-size:11px}
+.navbtn{display:none}
+@media(max-width:760px){
+ .page{padding-bottom:74px}
+ #exportBtn,#syncLabel{display:none}
+ .stats{grid-template-columns:repeat(4,1fr);gap:6px}
+ .stat{padding:8px 2px}
+ .stat b{font-size:17px}
+ .stat span{font-size:10px}
+}
+@media(min-width:761px){
+ .tabbar{justify-content:center}
+ .tabbar button{flex:0 1 110px}
+ .navbtn{display:flex;position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:24px;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:0}
+ #navPrev{left:12px}#navNext{right:12px}
+}
+#padFab{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding:0}
+#padFab:active{transform:scale(.94)}
+#padModal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
+.padbox{width:min(520px,100%);height:min(420px,70vh);background:var(--card);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.padtop{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600}
+#padText{flex:1;width:100%;min-height:0;border:0;border-radius:0;background:var(--bg);color:var(--ink);font:inherit;padding:12px 14px;resize:none;outline:none}
+</style>
 </head>
-
 <body>
-  <div id="login" style="display:flex">
-    <div class="lbox">
-      <h1>Daily Tracker</h1>
-      <div class="sub">Build habits. Keep your streaks.</div>
-      <div class="tabs"><button class="g on" id="tabIn">Sign in</button><button class="g" id="tabUp">Create
-          account</button></div>
-      <input type="email" id="lgEmail" placeholder="Email" autocomplete="email"><input type="text" id="lgName"
-        placeholder="Your name" maxlength="30" style="display:none">
-      <select id="lgTitle" style="display:none">
-        <option value="">Title (optional)</option>
-        <option>Mr.</option>
-        <option>Ms.</option>
-        <option>Mrs.</option>
-        <option>Mx.</option>
-        <option>Dr.</option>
-      </select>
-      <input type="password" id="lgPin" placeholder="Password (6+ characters)" autocomplete="current-password">
-      <div class="err" id="lgErr"></div>
-      <button class="b" id="lgGo">Continue</button>
-      <div class="sub"><a href="#" id="forgot">Forgot password?</a></div>
-    </div>
+<div id="login" style="display:flex"><div class="lbox">
+  <h1>Daily Tracker</h1><div class="sub">Build habits. Keep your streaks.</div>
+  <div class="tabs"><button class="g on" id="tabIn">Sign in</button><button class="g" id="tabUp">Create account</button></div>
+  <input type="email" id="lgEmail" placeholder="Email" autocomplete="email"><input type="text" id="lgName" placeholder="Your name" maxlength="30" style="display:none">
+  <select id="lgTitle" style="display:none"><option value="">Title (optional)</option><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Mx.</option><option>Dr.</option></select>
+  <input type="password" id="lgPin" placeholder="Password (6+ characters)" autocomplete="current-password">
+  <div class="err" id="lgErr"></div>
+  <button class="b" id="lgGo">Continue</button>
+  <div class="sub"><a href="#" id="forgot">Forgot password?</a></div>
+</div></div>
+<div id="admin" style="display:none"><div class="abox"><div style="display:flex;justify-content:space-between;align-items:center"><h1>Admin dashboard</h1><button class="g" id="adminClose">Close</button></div><div id="adminBody" class="sub">Loading…</div></div></div>
+<div class="wrap hide" id="app">
+<header>
+  <div><h1>Daily Tracker</h1><div class="sub" id="dateLabel"></div></div>
+  <div><button class="g" id="todayBtn">Today</button> <button class="g" id="themeBtn">Theme</button> <button class="g" id="adminBtn" style="display:none">Admin</button> <button class="g" id="logoutBtn">Log out</button></div>
+</header>
+
+<div class="grid" id="pager">
+<div class="page">
+<div class="card full"><div class="stats" id="stats"></div></div>
+<div class="card full"><div style="font-size:20px;font-weight:700" id="heyLine"></div><div style="margin-top:6px"><span class="sub">quote:</span> <span id="quoteText" style="font-style:italic"></span> <span class="sub" id="quoteBy"></span></div></div>
+<div class="card grow">
+  <h2 id="listTitle">To-do List</h2>
+  <div class="sub" id="progText"></div>
+  <div class="bar"><i id="progBar"></i></div>
+  <div id="habits"></div>
+  <div class="add"><input type="text" id="habitIn" placeholder="Add an activity for this day…" maxlength="120"><button class="b" id="habitAdd">Add</button></div>
+  <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week keeps your streak.</span></div>
+</div>
+</div>
+<div class="page">
+<div class="card grow">
+    <h2>Daily note / journal</h2>
+    <textarea id="note" placeholder="How did the day go?"></textarea>
   </div>
-  <div id="admin" style="display:none">
-    <div class="abox">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h1>Admin dashboard</h1><button class="g" id="adminClose">Close</button>
-      </div>
-      <div id="adminBody" class="sub">Loading…</div>
-    </div>
+</div>
+<div class="page">
+<div class="card narrow">
+    <h2>Calendar</h2>
+    <div class="mh"><button class="g" id="prev">‹</button><b id="monthLabel"></b><button class="g" id="next">›</button></div>
+    <div class="cal" id="cal"></div>
+    <div class="sub" style="margin-top:8px">Tick ✓ = day complete · tinted = in progress</div>
   </div>
-  <div class="wrap hide" id="app">
-    <header>
-      <div>
-        <h1>Daily Tracker</h1>
-        <div class="sub" id="dateLabel"></div>
-      </div>
-      <div><button class="g" id="todayBtn">Today</button> <button class="g" id="themeBtn">Theme</button> <button class="g" id="adminBtn" style="display:none">Admin</button>
-        <button class="g" id="logoutBtn">Log out</button></div>
-    </header>
-
-    <div class="grid" id="pager">
-      <div class="page">
-        <div class="card full">
-          <div class="stats" id="stats"></div>
-        </div>
-        <div class="card full">
-          <div style="font-size:20px;font-weight:700" id="heyLine"></div>
-          <div style="margin-top:6px"><span class="sub">quote:</span> <span id="quoteText"
-              style="font-style:italic"></span> <span class="sub" id="quoteBy"></span></div>
-        </div>
-        <div class="card grow">
-          <h2>To-do List</h2>
-          <div class="sub" id="progText"></div>
-          <div class="bar"><i id="progBar"></i></div>
-          <div id="habits"></div>
-          <div class="add"><input type="text" id="habitIn" placeholder="New daily activity…" maxlength="80"><button
-              class="b" id="habitAdd">Add</button></div>
-          <div class="chips" id="dayChips"></div>
-          <div style="margin-top:12px"><button class="g" id="freezeBtn"></button> <span class="sub">1 rest day per week
-              keeps your streak. Tap an activity name to change its days.</span></div>
-        </div>
-      </div>
-      <div class="page">
-        <div class="card grow">
-          <h2>One-off to-dos (this day)</h2>
-          <div id="todos"></div>
-          <div class="add"><input type="text" id="todoIn" placeholder="Add a to-do…" maxlength="120"><button class="b"
-              id="todoAdd">Add</button></div>
-        </div>
-      </div>
-      <div class="page">
-        <div class="card grow">
-          <h2>Daily note / journal</h2>
-          <textarea id="note" placeholder="How did the day go?"></textarea>
-        </div>
-      </div>
-      <div class="page">
-        <div class="card narrow">
-          <h2>Calendar</h2>
-          <div class="mh"><button class="g" id="prev">‹</button><b id="monthLabel"></b><button class="g"
-              id="next">›</button></div>
-          <div class="cal" id="cal"></div>
-          <div class="sub" style="margin-top:8px">Filled = all done · tinted = partial</div>
-        </div>
-      </div>
-      <div class="page">
-        <div class="card">
-          <h2>Last 7 days</h2>
-          <div class="week" id="week"></div>
-        </div>
-        <div class="card full">
-          <h2>Past year</h2>
-          <div style="overflow-x:auto">
-            <div class="heat" id="heat"></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <div class="sub" id="syncLabel" style="margin-top:14px;text-align:center"></div>
-    <button id="padFab" type="button" aria-label="Open notepad">📝</button>
-    <div id="padModal">
-      <div class="padbox">
-        <div class="padtop"><span>📝 Notepad</span><button class="g" id="padClose" type="button">Close</button></div>
-        <textarea id="padText" placeholder="Jot anything down… it saves automatically"></textarea>
-      </div>
-    </div>
-    <button class="navbtn" id="navPrev" aria-label="Previous">‹</button><button class="navbtn" id="navNext"
-      aria-label="Next">›</button>
-    <nav class="tabbar" id="tabbar"><button class="on"><span>✅</span>To-do
-        List</button><button><span>📋</span>Tasks</button><button><span>📓</span>Journal</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button>
-    </nav>
+</div>
+<div class="page">
+<div class="card">
+    <h2>Last 7 days</h2>
+    <div class="week" id="week"></div>
   </div>
+<div class="card full"><h2>Past year</h2><div style="overflow-x:auto"><div class="heat" id="heat"></div></div></div>
+</div>
 
-  <script>window.APP_CONFIG = { SUPABASE_URL: "https://vhgmrbiinyjknxwbapnb.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4" };</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script>
-    (function () {
-      let LS = 'daily-tracker-v1';
-      const $ = id => document.getElementById(id);
-      const pad = n => String(n).padStart(2, '0');
-      const key = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-      const parse = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d) };
-      const uid = () => Math.random().toString(36).slice(2, 9);
-      const todayKey = () => key(new Date());
+</div>
+<div class="sub" id="syncLabel" style="margin-top:14px;text-align:center"></div>
+<button id="padFab" type="button" aria-label="Open notepad">📝</button>
+<div id="padModal"><div class="padbox">
+  <div class="padtop"><span>📝 Notepad</span><button class="g" id="padClose" type="button">Close</button></div>
+  <textarea id="padText" placeholder="Jot anything down… it saves automatically"></textarea>
+</div></div>
+<button class="navbtn" id="navPrev" aria-label="Previous">‹</button><button class="navbtn" id="navNext" aria-label="Next">›</button>
+<nav class="tabbar" id="tabbar"><button class="on"><span>✅</span>To-do List</button><button><span>📓</span>Journal</button><button><span>📅</span>Calendar</button><button><span>📊</span>Stats</button></nav>
+</div>
 
-      let S = { habits: [], log: {}, todos: [], notes: {}, water: {}, theme: '', freeze: {} };
-      let sel = todayKey(), view = parse(sel); view.setDate(1);
-      let cloudRef = null, saveTimer = null;
+<script>window.APP_CONFIG={SUPABASE_URL:"https://vhgmrbiinyjknxwbapnb.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_DKRNiRpRNbbcBjZmQkWRJQ_--nUAIk4"};</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+let LS='daily-tracker-v1';
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const todayKey=()=>key(new Date());
 
-      function loadLocal() {
-        try { const r = localStorage.getItem(LS); if (r) return JSON.parse(r) } catch (e) { }
-        return null;
-      }
-      function norm(o) {
-        const d = { habits: [], log: {}, todos: [], notes: {}, water: {}, theme: '', freeze: {} };
-        return Object.assign(d, o || {});
-      }
-      function save() {
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(async () => {
-          const json = JSON.stringify(S);
-          try { localStorage.setItem(LS, json) } catch (e) { }
-          if (cloudRef) {
-            try { await cloudRef.set({ json, updated: Date.now() }); $('syncLabel').textContent = 'Saved to your private cloud storage' }
-            catch (e) { $('syncLabel').textContent = 'Cloud save failed — saved in this browser only' }
-          }
-        }, 400);
-      }
+let S={days:{},notes:{},theme:'',freeze:{},pad:'',v:2};
+let sel=todayKey(), view=parse(sel); view.setDate(1);
+let cloudRef=null, saveTimer=null;
 
-      const DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let newDays = new Set([0, 1, 2, 3, 4, 5, 6]);
-      const due = (h, k) => !h.days || h.days.includes(parse(k).getDay());
-      const dueList = k => S.habits.filter(h => due(h, k));
-      const ndue = k => dueList(k).length;
-      const done = k => { const ids = S.log[k] || []; return dueList(k).filter(h => ids.includes(h.id)).length };
-      const frac = k => ndue(k) ? done(k) / ndue(k) : 0;
-      const isFull = k => ndue(k) > 0 && done(k) === ndue(k);
-      const status = k => { if (isFull(k)) return 'full'; if (S.freeze[k] || !ndue(k)) return 'skip'; return 'miss' };
-      const wk0 = k => { const d = parse(k); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return key(d) };
-      const weekFreeze = k => Object.keys(S.freeze).some(x => x !== k && wk0(x) === wk0(k));
-      function editDays(h) {
-        const cur = h.days ? h.days.map(i => DN[i]).join(',') : 'all';
-        const v = prompt('Days for "' + h.name + '" (e.g. mon,wed,fri — or "all")', cur);
-        if (v === null) return;
-        const t = v.toLowerCase().split(/[\s,]+/).filter(Boolean);
-        const days = DN.map((n, i) => t.some(x => x.length >= 2 && n.toLowerCase().startsWith(x.slice(0, 3))) ? i : -1).filter(i => i >= 0);
-        h.days = (t[0] === 'all' || !days.length || days.length === 7) ? undefined : days;
-        save(); render();
-      }
+function loadLocal(){
+  try{const r=localStorage.getItem(LS); if(r) return JSON.parse(r)}catch(e){}
+  return null;
+}
+function norm(o){
+  const s=Object.assign({days:{},notes:{},theme:'',freeze:{},pad:''},o||{});
+  if(!s.v){ // one-time upgrade from the old recurring-activity format
+    const hs=s.habits||[],lg=s.log||{};
+    Object.keys(lg).forEach(k=>{hs.forEach(h=>{if((lg[k]||[]).includes(h.id))(s.days[k]=s.days[k]||[]).push({id:uid(),text:h.name,done:true})})});
+    (s.todos||[]).forEach(t=>{(s.days[t.date]=s.days[t.date]||[]).push({id:t.id||uid(),text:t.text,done:!!t.done})});
+  }
+  s.v=2;delete s.habits;delete s.log;delete s.todos;delete s.water;
+  return s;
+}
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    const json=JSON.stringify(S);
+    try{localStorage.setItem(LS,json)}catch(e){}
+    if(cloudRef){
+      try{await cloudRef.set({json,updated:Date.now()}); $('syncLabel').textContent='Saved to your private cloud storage'}
+      catch(e){$('syncLabel').textContent='Cloud save failed — saved in this browser only'}
+    }
+  },400);
+}
 
-      function streakOverall() {
-        const ks = Object.keys(S.log).concat(Object.keys(S.freeze)).sort();
-        if (!ks.length) return { cur: 0, best: 0 };
-        const tk = todayKey(); let d = parse(ks[0]), cur = 0, best = 0;
-        while (key(d) <= tk) {
-          const k = key(d), s = status(k);
-          if (s === 'full') { cur++; best = Math.max(best, cur) }
-          else if (s === 'miss' && k !== tk) cur = 0;
-          d.setDate(d.getDate() + 1);
-        }
-        return { cur, best };
-      }
-      function habitStreak(id) {
-        const h = S.habits.find(x => x.id === id); let d = new Date(), n = 0, g = 0;
-        while (g++ < 3700) {
-          const k = key(d), has = (S.log[k] || []).includes(id);
-          if (has) n++;
-          else if (due(h, k) && !S.freeze[k] && k !== todayKey()) break;
-          d.setDate(d.getDate() - 1);
-        }
-        return n;
-      }
+const tasks=k=>S.days[k]||[];
+const ntasks=k=>tasks(k).length;
+const done=k=>tasks(k).filter(t=>t.done).length;
+const frac=k=>ntasks(k)?done(k)/ntasks(k):0;
+const isFull=k=>ntasks(k)>0&&done(k)===ntasks(k);
+const status=k=>isFull(k)?'full':(S.freeze[k]?'skip':'miss');
+const wk0=k=>{const d=parse(k);d.setDate(d.getDate()-((d.getDay()+6)%7));return key(d)};
+const weekFreeze=k=>Object.keys(S.freeze).some(x=>x!==k&&wk0(x)===wk0(k));
 
-      function render() {
-        document.documentElement.setAttribute('data-theme', S.theme || 'beige');
-        $('themeBtn').textContent = '🎨 ' + (S.theme || 'beige');
-        const sd = parse(sel);
-        $('dateLabel').textContent = sd.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (sel === todayKey() ? ' · Today' : '');
+// streak = consecutive days whose own list was fully completed
+function streakOverall(){
+  const ks=Object.keys(S.days).filter(k=>ntasks(k)>0).concat(Object.keys(S.freeze)).sort();
+  if(!ks.length)return {cur:0,best:0};
+  const tk=todayKey();let d=parse(ks[0]),cur=0,best=0;
+  while(key(d)<=tk){
+    const k=key(d),s=status(k);
+    if(s==='full'){cur++;best=Math.max(best,cur)}
+    else if(s==='miss'&&k!==tk)cur=0;
+    d.setDate(d.getDate()+1);
+  }
+  return {cur,best};
+}
 
-        // stats
-        const st = streakOverall();
-        let total = 0, perfect = 0; Object.keys(S.log).forEach(k => { if (isFull(k)) perfect++ });
-        const last30 = [...Array(30)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return frac(key(d)) });
-        const avg = Math.round(last30.reduce((a, b) => a + b, 0) / 30 * 100);
-        $('stats').innerHTML =
-          `<div class="stat"><b>🔥 ${st.cur}</b><span>Current streak</span></div>` +
-          `<div class="stat"><b>🏆 ${st.best}</b><span>Best streak</span></div>` +
-          `<div class="stat"><b>${perfect}</b><span>Perfect days</span></div>` +
-          `<div class="stat"><b>${avg}%</b><span>30-day average</span></div>`;
+function render(){
+  document.documentElement.setAttribute('data-theme',S.theme||'beige');
+  $('themeBtn').textContent='🎨 '+(S.theme||'beige');
+  const sd=parse(sel);
+  $('dateLabel').textContent=sd.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(sel===todayKey()?' · Today':'');
 
-        // habits
-        const ids = S.log[sel] || [];
-        const dn = done(sel), tot = ndue(sel);
-        $('progText').textContent = tot ? `${dn} of ${tot} done · ${Math.round(dn / tot * 100)}%` : 'No activities yet — add your first one below.';
-        $('progBar').style.width = (tot ? dn / tot * 100 : 0) + '%';
-        const hb = $('habits'); hb.innerHTML = '';
-        S.habits.forEach(h => {
-          const on = ids.includes(h.id), s = habitStreak(h.id), off = !due(h, sel);
-          const r = document.createElement('div'); r.className = 'row' + (on ? ' done' : '') + (off ? ' off' : '');
-          r.innerHTML = `<button class="chk ${on ? 'on' : ''}" aria-label="toggle">${on ? '✓' : ''}</button><span class="t"></span>${s > 1 ? `<span class="badge">🔥 ${s}</span>` : ''}<button class="x" aria-label="delete">✕</button>`;
-          r.querySelector('.t').textContent = h.name + (h.days ? ' · ' + h.days.map(i => DN[i]).join(' ') : '') + (off ? ' (off day)' : '');
-          r.querySelector('.t').onclick = () => editDays(h);
-          if (off) r.querySelector('.chk').disabled = true;
-          r.querySelector('.chk').onclick = () => {
-            const a = S.log[sel] || []; S.log[sel] = on ? a.filter(x => x !== h.id) : [...a, h.id]; save(); render();
-          };
-          r.querySelector('.x').onclick = () => {
-            if (confirm('Remove "' + h.name + '"? Past ticks for it will no longer count.')) { S.habits = S.habits.filter(x => x.id !== h.id); save(); render() }
-          };
-          hb.appendChild(r);
-        });
+  // stats
+  const st=streakOverall();
+  let perfect=0;Object.keys(S.days).forEach(k=>{if(isFull(k))perfect++});
+  const last30=[...Array(30)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return frac(key(d))});
+  const avg=Math.round(last30.reduce((a,b)=>a+b,0)/30*100);
+  $('stats').innerHTML=
+    `<div class="stat"><b>🔥 ${st.cur}</b><span>Current streak</span></div>`+
+    `<div class="stat"><b>🏆 ${st.best}</b><span>Best streak</span></div>`+
+    `<div class="stat"><b>${perfect}</b><span>Perfect days</span></div>`+
+    `<div class="stat"><b>${avg}%</b><span>30-day average</span></div>`;
 
-        // todos
-        const tb = $('todos'); tb.innerHTML = '';
-        const todos = S.todos.filter(t => t.date === sel);
-        if (!todos.length) { tb.innerHTML = '<div class="empty">Nothing here for this day.</div>' }
-        todos.forEach(t => {
-          const r = document.createElement('div'); r.className = 'row' + (t.done ? ' done' : '');
-          r.innerHTML = `<button class="chk ${t.done ? 'on' : ''}">${t.done ? '✓' : ''}</button><span class="t"></span><button class="x">✕</button>`;
-          r.querySelector('.t').textContent = t.text;
-          r.querySelector('.chk').onclick = () => { t.done = !t.done; save(); render() };
-          r.querySelector('.x').onclick = () => { S.todos = S.todos.filter(x => x.id !== t.id); save(); render() };
-          tb.appendChild(r);
-        });
+  // this day's own list
+  const list=tasks(sel),dn=done(sel),tot=ntasks(sel);
+  $('listTitle').textContent='To-do List \u00b7 '+sd.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  $('progText').textContent=tot?`${dn} of ${tot} done \u00b7 ${Math.round(dn/tot*100)}%`:'No activities for this day yet. Add one below.';
+  $('progBar').style.width=(tot?dn/tot*100:0)+'%';
+  const hb=$('habits'); hb.innerHTML='';
+  list.forEach(t=>{
+    const r=document.createElement('div'); r.className='row'+(t.done?' done':'');
+    r.innerHTML=`<button class="chk ${t.done?'on':''}" aria-label="toggle">${t.done?'\u2713':''}</button><span class="t"></span><button class="x" aria-label="delete">\u2715</button>`;
+    r.querySelector('.t').textContent=t.text;
+    r.querySelector('.chk').onclick=()=>{t.done=!t.done;save();render()};
+    r.querySelector('.x').onclick=()=>{S.days[sel]=tasks(sel).filter(x=>x.id!==t.id);if(!S.days[sel].length)delete S.days[sel];save();render()};
+    hb.appendChild(r);
+  });
 
-        // calendar
-        $('monthLabel').textContent = view.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-        const cal = $('cal'); cal.innerHTML = '';
-        ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(x => { const e = document.createElement('div'); e.className = 'h'; e.textContent = x; cal.appendChild(e) });
-        const first = new Date(view.getFullYear(), view.getMonth(), 1);
-        const lead = (first.getDay() + 6) % 7;
-        for (let i = 0; i < lead; i++)cal.appendChild(document.createElement('div'));
-        const dim = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
-        const tk = todayKey();
-        for (let i = 1; i <= dim; i++) {
-          const k = key(new Date(view.getFullYear(), view.getMonth(), i));
-          const b = document.createElement('button');
-          let c = 'd'; if (isFull(k)) c += ' full'; else if (done(k) > 0) c += ' part';
-          if (k === sel) c += ' sel'; if (k === tk) c += ' today'; if (k > tk) c += ' fut';
-          b.className = c; b.textContent = isFull(k) ? '✓' : (S.freeze[k] ? '❄' : i); b.title = k;
-          b.onclick = () => { sel = k; render() };
-          cal.appendChild(b);
-        }
+  // calendar
+  $('monthLabel').textContent=view.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  const cal=$('cal'); cal.innerHTML='';
+  ['M','T','W','T','F','S','S'].forEach(x=>{const e=document.createElement('div');e.className='h';e.textContent=x;cal.appendChild(e)});
+  const first=new Date(view.getFullYear(),view.getMonth(),1);
+  const lead=(first.getDay()+6)%7;
+  for(let i=0;i<lead;i++)cal.appendChild(document.createElement('div'));
+  const dim=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+  const tk=todayKey();
+  for(let i=1;i<=dim;i++){
+    const k=key(new Date(view.getFullYear(),view.getMonth(),i));
+    const b=document.createElement('button');
+    let c='d'; if(isFull(k))c+=' full'; else if(done(k)>0)c+=' part'; else if(ntasks(k)>0)c+=' has';
+    if(k===sel)c+=' sel'; if(k===tk)c+=' today'; if(k>tk)c+=' fut';
+    b.className=c; b.textContent=isFull(k)?'✓':(S.freeze[k]?'❄':i); b.title=k;
+    b.onclick=()=>{sel=k;render();pg.scrollTo({left:0,behavior:'smooth'})};
+    cal.appendChild(b);
+  }
 
-        // week
-        const wk = $('week'); wk.innerHTML = '';
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date(); d.setDate(d.getDate() - i); const k = key(d);
-          const c = document.createElement('div'); c.className = 'wc';
-          c.innerHTML = `<i style="height:${Math.max(3, frac(k) * 80)}px"></i><div>${d.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 2)}</div>`;
-          wk.appendChild(c);
-        }
+  // week
+  const wk=$('week'); wk.innerHTML='';
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);const k=key(d);
+    const c=document.createElement('div');c.className='wc';
+    c.innerHTML=`<i style="height:${Math.max(3,frac(k)*80)}px"></i><div>${d.toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</div>`;
+    wk.appendChild(c);
+  }
 
-        // weekday chips for new activity
-        const ch = $('dayChips'); ch.innerHTML = '<span class="sub" style="align-self:center">Repeat on:</span>';
-        [1, 2, 3, 4, 5, 6, 0].forEach(i => { const c = document.createElement('button'); c.className = 'chip' + (newDays.has(i) ? ' on' : ''); c.textContent = DN[i].slice(0, 2); c.onclick = () => { newDays.has(i) ? newDays.delete(i) : newDays.add(i); render() }; ch.appendChild(c) });
+  // rest day
+  const fb=$('freezeBtn');fb.textContent=S.freeze[sel]?'Remove rest day':'❄ Use rest day';
+  fb.onclick=()=>{
+    if(S.freeze[sel])delete S.freeze[sel];
+    else{if(weekFreeze(sel)){alert('You already used a rest day this week.');return}S.freeze[sel]=true}
+    save();render();
+  };
 
-        // rest day
-        const fb = $('freezeBtn'); fb.textContent = S.freeze[sel] ? 'Remove rest day' : '❄ Use rest day';
-        fb.onclick = () => {
-          if (S.freeze[sel]) delete S.freeze[sel];
-          else { if (weekFreeze(sel)) { alert('You already used a rest day this week.'); return } S.freeze[sel] = true }
-          save(); render();
-        };
+  // yearly heatmap
+  const hm=$('heat');hm.innerHTML='';
+  const hs=new Date();hs.setDate(hs.getDate()-364);hs.setDate(hs.getDate()-((hs.getDay()+6)%7));
+  for(const d=new Date(hs);key(d)<=todayKey();d.setDate(d.getDate()+1)){
+    const k=key(d),f=frac(k),c=document.createElement('div');c.className='hc';
+    if(S.freeze[k]&&!isFull(k))c.style.background='var(--warn)';
+    else if(f>0)c.style.background='color-mix(in srgb,var(--acc) '+Math.max(25,Math.round(f*100))+'%,var(--line))';
+    c.title=k+' · '+Math.round(f*100)+'%';
+    hm.appendChild(c);
+  }
 
-        // yearly heatmap
-        const hm = $('heat'); hm.innerHTML = '';
-        const hs = new Date(); hs.setDate(hs.getDate() - 364); hs.setDate(hs.getDate() - ((hs.getDay() + 6) % 7));
-        for (const d = new Date(hs); key(d) <= todayKey(); d.setDate(d.getDate() + 1)) {
-          const k = key(d), f = frac(k), c = document.createElement('div'); c.className = 'hc';
-          if (S.freeze[k] && !isFull(k)) c.style.background = 'var(--warn)';
-          else if (f > 0) c.style.background = 'color-mix(in srgb,var(--acc) ' + Math.max(25, Math.round(f * 100)) + '%,var(--line))';
-          c.title = k + ' · ' + Math.round(f * 100) + '%';
-          hm.appendChild(c);
-        }
+  const pd=$('padText'); if(document.activeElement!==pd) pd.value=S.pad||'';
+  place();
 
-        const pd = $('padText'); if (document.activeElement !== pd) pd.value = S.pad || '';
-        place();
+  // note
+  const n=$('note'); if(document.activeElement!==n) n.value=S.notes[sel]||'';
+}
 
-        // note
-        const n = $('note'); if (document.activeElement !== n) n.value = S.notes[sel] || '';
-      }
+function addTask(){const v=$('habitIn').value.trim();if(!v)return;(S.days[sel]=S.days[sel]||[]).push({id:uid(),text:v,done:false});$('habitIn').value='';save();render()}
+$('habitAdd').onclick=addTask;
+$('habitIn').onkeydown=e=>{if(e.key==='Enter')addTask()};
+$('note').oninput=e=>{S.notes[sel]=e.target.value;save()};
+$('prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};
+$('next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};
+$('todayBtn').onclick=()=>{sel=todayKey();view=parse(sel);view.setDate(1);render()};
+$('themeBtn').onclick=()=>{
+  const o=['beige','light','dark'];
+  S.theme=o[(o.indexOf(S.theme||'beige')+1)%3];save();render();
+};
+// start with local data, then upgrade to private cloud storage if available
+// ---- Supabase auth + sync ----
+const CFG=window.APP_CONFIG;
+const sb=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+let UID=null;
+const QUOTES=[
+['The unexamined life is not worth living.','Socrates'],
+['It does not matter how slowly you go as long as you do not stop.','Confucius'],
+['The journey of a thousand miles begins with a single step.','Lao Tzu'],
+['We are what we repeatedly do. Excellence, then, is not an act but a habit.','Will Durant'],
+['The only way to do great work is to love what you do.','Steve Jobs'],
+['Whether you think you can, or you think you can\u2019t, you\u2019re right.','Henry Ford'],
+['Do what you can, with what you have, where you are.','Theodore Roosevelt'],
+['The best time to plant a tree was 20 years ago. The second best time is now.','Proverb'],
+['He who has a why to live can bear almost any how.','Friedrich Nietzsche'],
+['Waste no more time arguing what a good man should be. Be one.','Marcus Aurelius'],
+['Courage is not the absence of fear, but the triumph over it.','Nelson Mandela'],
+['It always seems impossible until it\u2019s done.','Nelson Mandela'],
+['Success is the sum of small efforts, repeated day in and day out.','Robert Collier'],
+['Fall seven times, stand up eight.','Japanese proverb'],
+['Small deeds done are better than great deeds planned.','Peter Marshall'],
+['Energy and persistence conquer all things.','Benjamin Franklin'],
+['Lost time is never found again.','Benjamin Franklin'],
+['Well done is better than well said.','Benjamin Franklin'],
+['Nothing will work unless you do.','Maya Angelou'],
+['Act as if what you do makes a difference. It does.','William James'],
+['Don\u2019t count the days, make the days count.','Muhammad Ali'],
+['Discipline is the bridge between goals and accomplishment.','Jim Rohn'],
+['Tough times never last, but tough people do.','Robert H. Schuller'],
+['Little by little, one travels far.','J.R.R. Tolkien'],
+['Start where you are. Use what you have. Do what you can.','Arthur Ashe'],
+['Make each day your masterpiece.','John Wooden'],
+['The secret of getting ahead is getting started.','Mark Twain'],
+['Do something today that your future self will thank you for.','Sean Patrick Flanery'],
+['A river cuts through rock not because of its power, but because of its persistence.','Jim Watkins'],
+['Your time is limited, so don\u2019t waste it living someone else\u2019s life.','Steve Jobs'],
+['Happiness depends upon ourselves.','Aristotle'],
+['In the middle of difficulty lies opportunity.','Albert Einstein'],
+['The future depends on what you do today.','Mahatma Gandhi'],
+['You miss 100% of the shots you don\u2019t take.','Wayne Gretzky'],
+['Action is the foundational key to all success.','Pablo Picasso']
+];
+const dayIndex=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let mode='in';
+function setMode(m){
+  mode=m;$('tabIn').classList.toggle('on',m==='in');$('tabUp').classList.toggle('on',m==='up');
+  $('lgName').style.display=$('lgTitle').style.display=m==='up'?'block':'none';$('lgErr').textContent='';
+}
+async function getQuote(){
+  const ck='dt-quote-'+todayKey();
+  try{const c=localStorage.getItem(ck);if(c)return JSON.parse(c)}catch(e){}
+  try{
+    const ctl=new AbortController();setTimeout(()=>ctl.abort(),4000);
+    const r=await fetch('https://dummyjson.com/quotes/random',{signal:ctl.signal});
+    const j=await r.json();const q=[j.quote,j.author];
+    if(!j.quote)throw 0;
+    try{localStorage.setItem(ck,JSON.stringify(q))}catch(e){}
+    return q;
+  }catch(e){return QUOTES[dayIndex()%QUOTES.length]}
+}
+async function submit(){
+  const err=m=>{$('lgErr').textContent=m};
+  const email=$('lgEmail').value.trim(),pw=$('lgPin').value,name=$('lgName').value.trim();
+  if(!email)return err('Enter your email.');
+  if(pw.length<6)return err('Password must be at least 6 characters.');
+  $('lgGo').disabled=true;
+  try{
+    if(mode==='up'){
+      if(!name)return err('Enter your name.');
+      const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{name,title:$('lgTitle').value}}});
+      if(error)return err(error.message);
+      if(!data.session)return err('Check your email to confirm your account, then sign in.');
+    }else{
+      const {error}=await sb.auth.signInWithPassword({email,password:pw});
+      if(error)return err(error.message);
+    }
+  }finally{$('lgGo').disabled=false}
+}
+async function enter(user){
+  UID=user.id;LS='daily-tracker-v1:'+UID;$('lgErr').textContent='';
+  const [pr,st,adm]=await Promise.all([
+    sb.from('profiles').select('name,title').eq('id',UID).maybeSingle(),
+    sb.from('tracker_state').select('data').eq('user_id',UID).maybeSingle(),
+    sb.rpc('is_admin')]);
+  const um=user.user_metadata||{};
+  const p=pr.data||{name:um.name||'friend',title:um.title||''};
+  const d=st.data&&st.data.data;const has=d&&Object.keys(d).length;
+  const local=loadLocal();
+  S=norm(has?d:local);
+  cloudRef={set:async o=>{const {error}=await sb.from('tracker_state').upsert({user_id:UID,data:JSON.parse(o.json),updated_at:new Date().toISOString()});if(error)throw error}};
+  sel=todayKey();view=parse(sel);view.setDate(1);
+  $('login').style.display='none';$('app').classList.remove('hide');
+  $('adminBtn').style.display=adm.data===true?'inline-block':'none';
+  $('heyLine').textContent='Hey '+(p.title?p.title+' ':'')+p.name;
+  render();$('syncLabel').textContent='Synced to your account';
+  if(!has||(d&&!d.v))save();
+  getQuote().then(q=>{$('quoteText').textContent='\u201c'+q[0]+'\u201d';$('quoteBy').textContent='\u2014 '+q[1]});
+  sb.from('visits').upsert({user_id:UID,day:todayKey()},{onConflict:'user_id,day',ignoreDuplicates:true}).then(()=>{});
+  sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',UID).then(()=>{});
+}
+function showLogin(){
+  UID=null;cloudRef=null;$('app').classList.add('hide');$('admin').style.display='none';
+  $('login').style.display='flex';$('lgPin').value='';
+}
+async function openAdmin(){
+  $('admin').style.display='flex';const body=$('adminBody');body.textContent='Loading\u2026';
+  const {data,error}=await sb.rpc('admin_stats');
+  if(error){body.textContent='Not authorized or setup incomplete: '+error.message;return}
+  const mx=Math.max(1,...data.daily.map(x=>Math.max(x.active,x.signups)));
+  const stat=(n,l)=>'<div class="stat"><b>'+n+'</b><span>'+l+'</span></div>';
+  const fd=v=>v?new Date(v).toLocaleDateString():'-';
+  body.innerHTML='<div class="stats">'+stat(data.total_users,'Total users')+stat(data.dau_today,'Active today')+stat(data.active_7d,'Active (7 days)')+stat(data.new_7d,'New (7 days)')+'</div>'+
+    '<h2 style="margin:16px 0 8px">Active users per day (last 14 days)</h2><div class="week">'+
+    data.daily.map(x=>'<div class="wc"><div>'+x.active+'</div><i style="height:'+Math.max(3,x.active/mx*70)+'px"></i><div>'+esc(x.day.slice(8))+'</div></div>').join('')+'</div>'+
+    '<h2 style="margin:16px 0 8px">Users</h2><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Joined</th><th>Last seen</th><th>Days active</th></tr>'+
+    data.users.map(u=>'<tr><td>'+esc(u.name)+'</td><td>'+esc(u.email)+'</td><td>'+fd(u.created_at)+'</td><td>'+fd(u.last_seen)+'</td><td>'+u.days_active+'</td></tr>').join('')+'</table></div>';
+}
+$('tabIn').onclick=()=>setMode('in');$('tabUp').onclick=()=>setMode('up');
+$('lgGo').onclick=submit;
+$('lgPin').onkeydown=e=>{if(e.key==='Enter')submit()};
+$('logoutBtn').onclick=()=>sb.auth.signOut();
+$('adminBtn').onclick=openAdmin;
+$('adminClose').onclick=()=>{$('admin').style.display='none'};
+$('forgot').onclick=async e=>{
+  e.preventDefault();const em=$('lgEmail').value.trim();
+  if(!em){$('lgErr').textContent='Enter your email first.';return}
+  const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.href.split('#')[0]});
+  $('lgErr').textContent=error?error.message:'Password reset email sent.';
+};
+sb.auth.onAuthStateChange((ev,session)=>{
+  setTimeout(()=>{
+    if(ev==='PASSWORD_RECOVERY'){const np=prompt('Enter a new password (6+ characters)');if(np&&np.length>=6)sb.auth.updateUser({password:np}).then(r=>alert(r.error?r.error.message:'Password updated'))}
+    if(session&&session.user){if(UID!==session.user.id)enter(session.user)}else if(UID||ev==='SIGNED_OUT')showLogin();
+  },0);
+});
+function place(){$('padFab').style.bottom=($('tabbar').offsetHeight+16)+'px'}
+const pm=$('padModal');
+const openPad=()=>{pm.style.display='flex';$('padText').focus()};
+const closePad=()=>{pm.style.display='none'};
+$('padFab').onclick=openPad;$('padClose').onclick=closePad;
+pm.onclick=e=>{if(e.target===pm)closePad()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closePad()});
+$('padText').oninput=e=>{S.pad=e.target.value;save()};
+addEventListener('resize',place);
+const pg=$('pager'),tabs=[...document.querySelectorAll('#tabbar button')];
+tabs.forEach((b,i)=>b.onclick=()=>pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'}));
+pg.addEventListener('scroll',()=>{const i=Math.round(pg.scrollLeft/(pg.clientWidth||1));tabs.forEach((b,j)=>b.classList.toggle('on',i===j))},{passive:true});
+const go=d=>{const i=Math.max(0,Math.min(tabs.length-1,Math.round(pg.scrollLeft/(pg.clientWidth||1))+d));pg.scrollTo({left:i*pg.clientWidth,behavior:'smooth'})};
+$('navPrev').onclick=()=>go(-1);$('navNext').onclick=()=>go(1);
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName))return;if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowRight')go(1)});
+setMode('in');
+if(CFG.SUPABASE_URL.indexOf('YOUR-PROJECT')>=0)$('lgErr').textContent='Setup needed: add your Supabase keys at the top of index.html';
 
-      function addHabit() { const v = $('habitIn').value.trim(); if (!v) return; S.habits.push({ id: uid(), name: v, days: (newDays.size && newDays.size < 7) ? [...newDays] : undefined }); newDays = new Set([0, 1, 2, 3, 4, 5, 6]); $('habitIn').value = ''; save(); render() }
-      function addTodo() { const v = $('todoIn').value.trim(); if (!v) return; S.todos.push({ id: uid(), text: v, date: sel, done: false }); $('todoIn').value = ''; save(); render() }
-      $('habitAdd').onclick = addHabit; $('todoAdd').onclick = addTodo;
-      $('habitIn').onkeydown = e => { if (e.key === 'Enter') addHabit() };
-      $('todoIn').onkeydown = e => { if (e.key === 'Enter') addTodo() };
-      $('note').oninput = e => { S.notes[sel] = e.target.value; save() };
-      $('prev').onclick = () => { view.setMonth(view.getMonth() - 1); render() };
-      $('next').onclick = () => { view.setMonth(view.getMonth() + 1); render() };
-      $('todayBtn').onclick = () => { sel = todayKey(); view = parse(sel); view.setDate(1); render() };
-      $('themeBtn').onclick = () => {
-        const o = ['beige', 'light', 'dark'];
-        S.theme = o[(o.indexOf(S.theme || 'beige') + 1) % 3]; save(); render();
-      };
-
-      // start with local data, then upgrade to private cloud storage if available
-      // ---- Supabase auth + sync ----
-      const CFG = window.APP_CONFIG;
-      const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
-      let UID = null;
-      const QUOTES = [
-        ['The unexamined life is not worth living.', 'Socrates'],
-        ['It does not matter how slowly you go as long as you do not stop.', 'Confucius'],
-        ['The journey of a thousand miles begins with a single step.', 'Lao Tzu'],
-        ['We are what we repeatedly do. Excellence, then, is not an act but a habit.', 'Will Durant'],
-        ['The only way to do great work is to love what you do.', 'Steve Jobs'],
-        ['Whether you think you can, or you think you can\u2019t, you\u2019re right.', 'Henry Ford'],
-        ['Do what you can, with what you have, where you are.', 'Theodore Roosevelt'],
-        ['The best time to plant a tree was 20 years ago. The second best time is now.', 'Proverb'],
-        ['He who has a why to live can bear almost any how.', 'Friedrich Nietzsche'],
-        ['Waste no more time arguing what a good man should be. Be one.', 'Marcus Aurelius'],
-        ['Courage is not the absence of fear, but the triumph over it.', 'Nelson Mandela'],
-        ['It always seems impossible until it\u2019s done.', 'Nelson Mandela'],
-        ['Success is the sum of small efforts, repeated day in and day out.', 'Robert Collier'],
-        ['Fall seven times, stand up eight.', 'Japanese proverb'],
-        ['Small deeds done are better than great deeds planned.', 'Peter Marshall'],
-        ['Energy and persistence conquer all things.', 'Benjamin Franklin'],
-        ['Lost time is never found again.', 'Benjamin Franklin'],
-        ['Well done is better than well said.', 'Benjamin Franklin'],
-        ['Nothing will work unless you do.', 'Maya Angelou'],
-        ['Act as if what you do makes a difference. It does.', 'William James'],
-        ['Don\u2019t count the days, make the days count.', 'Muhammad Ali'],
-        ['Discipline is the bridge between goals and accomplishment.', 'Jim Rohn'],
-        ['Tough times never last, but tough people do.', 'Robert H. Schuller'],
-        ['Little by little, one travels far.', 'J.R.R. Tolkien'],
-        ['Start where you are. Use what you have. Do what you can.', 'Arthur Ashe'],
-        ['Make each day your masterpiece.', 'John Wooden'],
-        ['The secret of getting ahead is getting started.', 'Mark Twain'],
-        ['Do something today that your future self will thank you for.', 'Sean Patrick Flanery'],
-        ['A river cuts through rock not because of its power, but because of its persistence.', 'Jim Watkins'],
-        ['Your time is limited, so don\u2019t waste it living someone else\u2019s life.', 'Steve Jobs'],
-        ['Happiness depends upon ourselves.', 'Aristotle'],
-        ['In the middle of difficulty lies opportunity.', 'Albert Einstein'],
-        ['The future depends on what you do today.', 'Mahatma Gandhi'],
-        ['You miss 100% of the shots you don\u2019t take.', 'Wayne Gretzky'],
-        ['Action is the foundational key to all success.', 'Pablo Picasso']
-      ];
-      const dayIndex = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
-      const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-      let mode = 'in';
-      function setMode(m) {
-        mode = m; $('tabIn').classList.toggle('on', m === 'in'); $('tabUp').classList.toggle('on', m === 'up');
-        $('lgName').style.display = $('lgTitle').style.display = m === 'up' ? 'block' : 'none'; $('lgErr').textContent = '';
-      }
-      async function getQuote() {
-        const ck = 'dt-quote-' + todayKey();
-        try { const c = localStorage.getItem(ck); if (c) return JSON.parse(c) } catch (e) { }
-        try {
-          const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
-          const r = await fetch('https://dummyjson.com/quotes/random', { signal: ctl.signal });
-          const j = await r.json(); const q = [j.quote, j.author];
-          if (!j.quote) throw 0;
-          try { localStorage.setItem(ck, JSON.stringify(q)) } catch (e) { }
-          return q;
-        } catch (e) { return QUOTES[dayIndex() % QUOTES.length] }
-      }
-      async function submit() {
-        const err = m => { $('lgErr').textContent = m };
-        const email = $('lgEmail').value.trim(), pw = $('lgPin').value, name = $('lgName').value.trim();
-        if (!email) return err('Enter your email.');
-        if (pw.length < 6) return err('Password must be at least 6 characters.');
-        $('lgGo').disabled = true;
-        try {
-          if (mode === 'up') {
-            if (!name) return err('Enter your name.');
-            const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { name, title: $('lgTitle').value } } });
-            if (error) return err(error.message);
-            if (!data.session) return err('Check your email to confirm your account, then sign in.');
-          } else {
-            const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-            if (error) return err(error.message);
-          }
-        } finally { $('lgGo').disabled = false }
-      }
-      async function enter(user) {
-        UID = user.id; LS = 'daily-tracker-v1:' + UID; $('lgErr').textContent = '';
-        const [pr, st, adm] = await Promise.all([
-          sb.from('profiles').select('name,title').eq('id', UID).maybeSingle(),
-          sb.from('tracker_state').select('data').eq('user_id', UID).maybeSingle(),
-          sb.rpc('is_admin')]);
-        const um = user.user_metadata || {};
-        const p = pr.data || { name: um.name || 'friend', title: um.title || '' };
-        const d = st.data && st.data.data; const has = d && Object.keys(d).length;
-        const local = loadLocal();
-        S = norm(has ? d : local);
-        if (!has && !local) { S.habits = [{ id: uid(), name: 'Exercise' }, { id: uid(), name: 'Read 20 minutes' }, { id: uid(), name: 'Plan tomorrow' }] }
-        cloudRef = { set: async o => { const { error } = await sb.from('tracker_state').upsert({ user_id: UID, data: JSON.parse(o.json), updated_at: new Date().toISOString() }); if (error) throw error } };
-        sel = todayKey(); view = parse(sel); view.setDate(1);
-        $('login').style.display = 'none'; $('app').classList.remove('hide');
-        $('adminBtn').style.display = adm.data === true ? 'inline-block' : 'none';
-        $('heyLine').textContent = 'Hey ' + (p.title ? p.title + ' ' : '') + p.name;
-        render(); $('syncLabel').textContent = 'Synced to your account';
-        if (!has) save();
-        getQuote().then(q => { $('quoteText').textContent = '\u201c' + q[0] + '\u201d'; $('quoteBy').textContent = '\u2014 ' + q[1] });
-        sb.from('visits').upsert({ user_id: UID, day: todayKey() }, { onConflict: 'user_id,day', ignoreDuplicates: true }).then(() => { });
-        sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', UID).then(() => { });
-      }
-      function showLogin() {
-        UID = null; cloudRef = null; $('app').classList.add('hide'); $('admin').style.display = 'none';
-        $('login').style.display = 'flex'; $('lgPin').value = '';
-      }
-      async function openAdmin() {
-        $('admin').style.display = 'flex'; const body = $('adminBody'); body.textContent = 'Loading\u2026';
-        const { data, error } = await sb.rpc('admin_stats');
-        if (error) { body.textContent = 'Not authorized or setup incomplete: ' + error.message; return }
-        const mx = Math.max(1, ...data.daily.map(x => Math.max(x.active, x.signups)));
-        const stat = (n, l) => '<div class="stat"><b>' + n + '</b><span>' + l + '</span></div>';
-        const fd = v => v ? new Date(v).toLocaleDateString() : '-';
-        body.innerHTML = '<div class="stats">' + stat(data.total_users, 'Total users') + stat(data.dau_today, 'Active today') + stat(data.active_7d, 'Active (7 days)') + stat(data.new_7d, 'New (7 days)') + '</div>' +
-          '<h2 style="margin:16px 0 8px">Active users per day (last 14 days)</h2><div class="week">' +
-          data.daily.map(x => '<div class="wc"><div>' + x.active + '</div><i style="height:' + Math.max(3, x.active / mx * 70) + 'px"></i><div>' + esc(x.day.slice(8)) + '</div></div>').join('') + '</div>' +
-          '<h2 style="margin:16px 0 8px">Users</h2><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Joined</th><th>Last seen</th><th>Days active</th></tr>' +
-          data.users.map(u => '<tr><td>' + esc(u.name) + '</td><td>' + esc(u.email) + '</td><td>' + fd(u.created_at) + '</td><td>' + fd(u.last_seen) + '</td><td>' + u.days_active + '</td></tr>').join('') + '</table></div>';
-      }
-      $('tabIn').onclick = () => setMode('in'); $('tabUp').onclick = () => setMode('up');
-      $('lgGo').onclick = submit;
-      $('lgPin').onkeydown = e => { if (e.key === 'Enter') submit() };
-      $('logoutBtn').onclick = () => sb.auth.signOut();
-      $('adminBtn').onclick = openAdmin;
-      $('adminClose').onclick = () => { $('admin').style.display = 'none' };
-      $('forgot').onclick = async e => {
-        e.preventDefault(); const em = $('lgEmail').value.trim();
-        if (!em) { $('lgErr').textContent = 'Enter your email first.'; return }
-        const { error } = await sb.auth.resetPasswordForEmail(em, { redirectTo: location.href.split('#')[0] });
-        $('lgErr').textContent = error ? error.message : 'Password reset email sent.';
-      };
-      sb.auth.onAuthStateChange((ev, session) => {
-        setTimeout(() => {
-          if (ev === 'PASSWORD_RECOVERY') { const np = prompt('Enter a new password (6+ characters)'); if (np && np.length >= 6) sb.auth.updateUser({ password: np }).then(r => alert(r.error ? r.error.message : 'Password updated')) }
-          if (session && session.user) { if (UID !== session.user.id) enter(session.user) } else if (UID || ev === 'SIGNED_OUT') showLogin();
-        }, 0);
-      });
-      function place() { $('padFab').style.bottom = ($('tabbar').offsetHeight + 16) + 'px' }
-      const pm = $('padModal');
-      const openPad = () => { pm.style.display = 'flex'; $('padText').focus() };
-      const closePad = () => { pm.style.display = 'none' };
-      $('padFab').onclick = openPad; $('padClose').onclick = closePad;
-      pm.onclick = e => { if (e.target === pm) closePad() };
-      addEventListener('keydown', e => { if (e.key === 'Escape') closePad() });
-      $('padText').oninput = e => { S.pad = e.target.value; save() };
-      addEventListener('resize', place);
-      const pg = $('pager'), tabs = [...document.querySelectorAll('#tabbar button')];
-      tabs.forEach((b, i) => b.onclick = () => pg.scrollTo({ left: i * pg.clientWidth, behavior: 'smooth' }));
-      pg.addEventListener('scroll', () => { const i = Math.round(pg.scrollLeft / (pg.clientWidth || 1)); tabs.forEach((b, j) => b.classList.toggle('on', i === j)) }, { passive: true });
-      const go = d => { const i = Math.max(0, Math.min(tabs.length - 1, Math.round(pg.scrollLeft / (pg.clientWidth || 1)) + d)); pg.scrollTo({ left: i * pg.clientWidth, behavior: 'smooth' }) };
-      $('navPrev').onclick = () => go(-1); $('navNext').onclick = () => go(1);
-      addEventListener('keydown', e => { if (/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName)) return; if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1) });
-      setMode('in');
-      if (CFG.SUPABASE_URL.indexOf('YOUR-PROJECT') >= 0) $('lgErr').textContent = 'Setup needed: add your Supabase keys at the top of index.html';
-
-      (async function () {
-        try {
-          return; // cloud sync off: public accounts are stored per device
-          const [user, db] = await Promise.all([claude.use('user'), claude.use('db')]);
-          if (!user || !db) return;
-          const id = await user.id(); if (!id) return;
-          const ref = db.doc('data/users/' + id + '/state');
-          const snap = await ref.get();
-          if (snap.exists) {
-            const d = snap.data();
-            if (d && d.json) { S = norm(JSON.parse(d.json)); try { localStorage.setItem(LS, d.json) } catch (e) { } }
-          }
-          cloudRef = ref;
-          $('syncLabel').textContent = 'Synced to your private cloud storage';
-          if (!snap.exists) save();
-          render();
-        } catch (e) { }
-      })();
-    })();
-  </script>
-  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js') }</script>
+(async function(){
+  try{
+    return; // cloud sync off: public accounts are stored per device
+    const [user,db]=await Promise.all([claude.use('user'),claude.use('db')]);
+    if(!user||!db)return;
+    const id=await user.id(); if(!id)return;
+    const ref=db.doc('data/users/'+id+'/state');
+    const snap=await ref.get();
+    if(snap.exists){
+      const d=snap.data();
+      if(d&&d.json){S=norm(JSON.parse(d.json));try{localStorage.setItem(LS,d.json)}catch(e){}}
+    }
+    cloudRef=ref;
+    $('syncLabel').textContent='Synced to your private cloud storage';
+    if(!snap.exists)save();
+    render();
+  }catch(e){}
+})();
+})();
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js')}</script>
 </body>
-
 </html>
